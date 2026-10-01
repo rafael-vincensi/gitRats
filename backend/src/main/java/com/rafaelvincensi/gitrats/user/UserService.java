@@ -5,6 +5,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -42,5 +44,10 @@ public class UserService {
         user.setCreatedAt(Instant.now());
 
         return userRepository.save(user);
+    }
+
+    public User findById(UUID id){
+        return userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("User not found!"));
     }
 }
