@@ -19,16 +19,16 @@ public class UserService {
     }
 
     public User createUser(CreateUserRequest request){
-        User findUser = userRepository.findByUsername(request.username());
-        User findUserByEmail = userRepository.findByEmail(request.email());
 
-        if (findUser != null){
-            throw new BusinessException("Username already exists!");
-        }
+        userRepository.findByUsername(request.username())
+                .ifPresent(user -> {
+                            throw new BusinessException("Username already exists!");
+                });
 
-        if (findUserByEmail != null){
-            throw new BusinessException("Email already exists!");
-        }
+        userRepository.findByEmail(request.email())
+                        .ifPresent(user -> {
+                            throw new BusinessException("Email already exists!");
+                        });
 
         String passwordHash = passwordEncoder.encode(request.password());
 
