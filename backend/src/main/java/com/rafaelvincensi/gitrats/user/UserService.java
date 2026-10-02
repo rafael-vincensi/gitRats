@@ -19,7 +19,6 @@ public class UserService {
     }
 
     public User createUser(CreateUserRequest request){
-
         userRepository.findByUsername(request.username())
                 .ifPresent(user -> {
                             throw new BusinessException("Username already exists!");
@@ -55,4 +54,10 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException("User not found!"));
     }
+
+    public User findByGithubId(String githubId){
+        return userRepository.findByGithubId(githubId)
+                .orElseThrow(() -> new BusinessException("User not found!"));
+    }
+
 }
