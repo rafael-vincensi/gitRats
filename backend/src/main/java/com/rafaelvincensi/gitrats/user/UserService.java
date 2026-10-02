@@ -86,4 +86,21 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User linkGithub(UUID id, LinkGithubRequest request){
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("User not found!"));
+
+        Optional<User> useGithubId = userRepository.findByGithubId(request.githubId());
+            if (useGithubId.isPresent()){
+                if (!user.getId().equals(useGithubId.get().getId()))
+                    throw new BusinessException("GitHub is linked to another user!");
+                 }
+                user.setGithubId(request.githubId());
+                user.setGithubUsername(request.githubUsername());
+                return userRepository.save(user);
+            }
+
+    }
+
 }
