@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -60,6 +61,29 @@ public class UserService {
                 .orElseThrow(() -> new BusinessException("User not found!"));
     }
 
+    public User updateProfileUser(UUID id, UpdateProfileRequest request){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("User not found!"));
 
+       if (request.username() != null) {
+           if (request.username().isBlank()){
+               throw new BusinessException("Username cannot be empty or blank!");
+           }
+
+           Optional<User> userOptional = userRepository.findByUsername(request.username());
+           if (userOptional.isPresent()){
+               if (!user.getId().equals(userOptional.get().getId())){
+                   throw new BusinessException("Username already exists!");
+               }
+           }
+       }
+
+        if (request.name() != null) user.setName(request.name());
+        if (request.bio() != null) user.setBio(request.bio());
+        if (request.avatarUrl() != null) user.setAvatarUrl(request.avatarUrl());
+        if (request.timezone() != null) user.setTimezone(request.timezone());
+
+        return userRepository.save(user);
+    }
 
 }
