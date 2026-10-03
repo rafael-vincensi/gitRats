@@ -101,6 +101,14 @@ public class UserService {
                 return userRepository.save(user);
             }
 
-    }
+        public User unlinkGithub(UUID id){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("User not found!"));
 
-}
+        user.setGithubId(null);
+        user.setGithubUsername(null);
+
+        return userRepository.save(user);
+
+        }
+    }
