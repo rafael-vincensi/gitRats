@@ -109,6 +109,5 @@ public class UserService {
         user.setGithubUsername(null);
 
         return userRepository.save(user);
-
         }
     }
