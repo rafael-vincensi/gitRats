@@ -23,4 +23,9 @@ public class UserController {
     public User findById(@PathVariable UUID id){
         return userService.findById(id);
     }
+
+    @GetMapping("/username/{username}")
+    public User findByUsername(@PathVariable String username){
+        return userService.findByUsername(username);
+    }
 }
