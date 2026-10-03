@@ -1,7 +1,6 @@
 package com.rafaelvincensi.gitrats.user;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -12,4 +11,10 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
+    @PostMapping
+    public User createUser(@RequestBody CreateUserRequest request){
+        return userService.createUser(request);
+    }
+
 }
