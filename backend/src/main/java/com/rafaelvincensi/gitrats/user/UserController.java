@@ -28,4 +28,9 @@ public class UserController {
     public User findByUsername(@PathVariable String username){
         return userService.findByUsername(username);
     }
+
+    @PatchMapping("/{id}")
+    public User updateProfileUser(@PathVariable UUID id, @RequestBody UpdateProfileRequest request){
+        return userService.updateProfileUser(id, request);
+    }
 }
