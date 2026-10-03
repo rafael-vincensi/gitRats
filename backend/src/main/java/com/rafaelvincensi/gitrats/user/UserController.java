@@ -33,4 +33,9 @@ public class UserController {
     public User updateProfileUser(@PathVariable UUID id, @RequestBody UpdateProfileRequest request){
         return userService.updateProfileUser(id, request);
     }
+
+    @PostMapping("/{id}/github")
+    public User linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequest request){
+        return userService.linkGithub(id, request);
+    }
 }
