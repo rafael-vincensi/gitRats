@@ -38,4 +38,9 @@ public class UserController {
     public User linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequest request){
         return userService.linkGithub(id, request);
     }
+
+    @DeleteMapping("/{id}/github")
+    public void unlinkGithub(@PathVariable UUID id){
+        userService.unlinkGithub(id);
+    }
 }
