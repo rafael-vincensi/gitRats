@@ -44,6 +44,15 @@ public class TokenProvider {
         }
     }
 
+    public String getUserIdFromToken(String token){
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
+
     private SecretKey getSigningKey(){
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
     }
