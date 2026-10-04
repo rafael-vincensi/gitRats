@@ -4,7 +4,9 @@ import com.rafaelvincensi.gitrats.common.exception.BusinessException;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AuthService {
 
     private final UserService userService;
