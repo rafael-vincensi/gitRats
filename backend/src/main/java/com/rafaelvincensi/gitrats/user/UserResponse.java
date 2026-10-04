@@ -1,6 +1,12 @@
 package com.rafaelvincensi.gitrats.user;
 
-public record UserResponse(
+import java.util.UUID;
 
-) {
-}
+public record UserResponse(
+        UUID id,
+        String username,
+        String name,
+        String bio,
+        String avatarUrl,
+        String githubUsername
+){}
