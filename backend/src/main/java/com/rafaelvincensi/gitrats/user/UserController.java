@@ -48,8 +48,17 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public User updateProfileUser(@PathVariable UUID id, @RequestBody UpdateProfileRequest request){
-        return userService.updateProfileUser(id, request);
+    public UserResponse updateProfileUser(@PathVariable UUID id, @RequestBody UpdateProfileRequest request){
+        User user =  userService.updateProfileUser(id, request);
+
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getBio(),
+                user.getAvatarUrl(),
+                user.getGithubUsername()
+        );
     }
 
     @PostMapping("/{id}/github")
