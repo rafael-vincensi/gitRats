@@ -43,8 +43,17 @@ public class UserController {
     }
 
     @GetMapping("/username/{username}")
-    public User findByUsername(@PathVariable String username){
-        return userService.findByUsername(username);
+    public UserResponse findByUsername(@PathVariable String username){
+        User user = userService.findByUsername(username);
+
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getBio(),
+                user.getAvatarUrl(),
+                user.getGithubUsername()
+        );
     }
 
     @PatchMapping("/{id}")
@@ -62,7 +71,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/github")
-        public UserResponse linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequest request){
+    public UserResponse linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequest request){
         User user = userService.linkGithub(id, request);
 
         return new UserResponse(
