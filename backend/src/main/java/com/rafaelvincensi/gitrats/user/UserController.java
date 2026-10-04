@@ -62,8 +62,17 @@ public class UserController {
     }
 
     @PostMapping("/{id}/github")
-    public User linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequest request){
-        return userService.linkGithub(id, request);
+        public UserResponse linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequest request){
+        User user = userService.linkGithub(id, request);
+
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getBio(),
+                user.getAvatarUrl(),
+                user.getGithubUsername()
+        );
     }
 
     @DeleteMapping("/{id}/github")
