@@ -15,8 +15,17 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody CreateUserRequest request){
-        return userService.createUser(request);
+    public UserResponse createUser(@RequestBody CreateUserRequest request){
+        User user = userService.createUser(request);
+
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getBio(),
+                user.getAvatarUrl(),
+                user.getGithubUsername()
+        );
     }
 
     @GetMapping("/{id}")
