@@ -31,6 +31,19 @@ public class TokenProvider {
                 .compact(); // transforma em string
     }
 
+    public boolean validateToken(String token){
+        try {
+            Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return true;
+        } catch (Exception e){
+            return false;
+        }
+    }
+
     private SecretKey getSigningKey(){
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
     }
