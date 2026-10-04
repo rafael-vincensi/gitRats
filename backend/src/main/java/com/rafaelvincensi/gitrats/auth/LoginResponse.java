@@ -1,4 +1,6 @@
 package com.rafaelvincensi.gitrats.auth;
 
-public record LoginResponse() {
+public record LoginResponse(
+        String token
+) {
 }
