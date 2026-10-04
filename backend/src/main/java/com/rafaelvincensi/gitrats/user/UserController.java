@@ -29,8 +29,17 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User findById(@PathVariable UUID id){
-        return userService.findById(id);
+    public UserResponse findById(@PathVariable UUID id){
+        User user = userService.findById(id);
+
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getBio(),
+                user.getAvatarUrl(),
+                user.getGithubUsername()
+        );
     }
 
     @GetMapping("/username/{username}")
