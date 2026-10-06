@@ -78,6 +78,7 @@ public class UserService {
            }
        }
 
+        if (request.username() != null) user.setUsername(request.username());
         if (request.name() != null) user.setName(request.name());
         if (request.bio() != null) user.setBio(request.bio());
         if (request.avatarUrl() != null) user.setAvatarUrl(request.avatarUrl());
