@@ -20,12 +20,12 @@ The idea is to turn coding activity into a shared experience through check-ins, 
 
 ## ✨ Planned Features
 
-- **Check-ins** — Record coding activity and track consistency.
-- **Groups** — Join communities and stay accountable with other developers.
-- **Activity Feed** — Keep up with recent activity from friends and groups.
-- **Leaderboards** — Compare activity and compete with other developers.
-- **Profiles** — Showcase activity history and personal stats.
-- **Discovery** — Find developers and groups.
+- **Check-ins** - Record coding activity and track consistency.
+- **Groups** - Join communities and stay accountable with other developers.
+- **Activity Feed** - Keep up with recent activity from friends and groups.
+- **Leaderboards** - Compare activity and compete with other developers.
+- **Profiles** - Showcase activity history and personal stats.
+- **Discovery** - Find developers and groups.
 
 ## 🛠️ Tech Stack
 
@@ -45,4 +45,4 @@ More details, screenshots, and setup instructions will be added as development p
 
 ---
 
-*Built by [rafael-vincensi](https://github.com/rafael-vincensi).*
+*Built by [rafael-vincensi](https://github.com/rafael-vincensi)*
