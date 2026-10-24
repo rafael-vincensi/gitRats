@@ -1,48 +1,63 @@
- <div align="center">
+# GitRats
 
-# 🐀 GitRats
+A social platform for developers to track coding activity, build consistency, and connect with other developers through check-ins, groups, and leaderboards.
 
-> A social platform for developers to track coding activity, build consistency, and compete with friends.
+## Features
 
-[![Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-brightgreen?style=for-the-badge&logo=spring)](https://spring.io/projects/spring-boot)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+- **Check-ins:** log coding sessions and track daily activity.
+- **Streaks:** build consistency by maintaining coding streaks.
+- **Groups:** connect with other developers and stay accountable together.
+- **Activity feed:** follow recent coding activity from friends and groups.
+- **Leaderboards:** compare activity and compete with other developers.
+- **Profiles:** showcase coding activity, streaks, and personal statistics.
+- **Discovery:** find developers and groups within the community.
 
-</div>
+## Tech Stack
 
----
+| Layer | Technology |
+|---|---|
+| Language | Java 21 |
+| Framework | Spring Boot |
+| Security | Spring Security, JWT |
+| Persistence | Spring Data JPA, Hibernate |
+| Database | PostgreSQL |
+| Build Tool | Maven |
 
-## 💡 About the Project
+## Architecture
 
-**GitRats** is a work-in-progress project exploring a more social approach to coding consistency.
+GitRats uses a RESTful architecture built with Spring Boot, separating application logic, authentication, and persistence.
 
-The idea is to turn coding activity into a shared experience through check-ins, groups, activity feeds, and leaderboards. Instead of focusing solely on GitHub statistics, GitRats aims to make consistency something developers can build together.
+Spring Security and JWT handle authentication and access control. Spring Data JPA and Hibernate manage relational persistence with PostgreSQL, supporting user accounts, coding activity, groups, and social interactions.
 
-## ✨ Planned Features
+The platform is designed around the idea that coding consistency can be more than an individual habit: it can become a shared experience built through community, accountability, and friendly competition.
 
-- **Check-ins** - Record coding activity and track consistency.
-- **Groups** - Join communities and stay accountable with other developers.
-- **Activity Feed** - Keep up with recent activity from friends and groups.
-- **Leaderboards** - Compare activity and compete with other developers.
-- **Profiles** - Showcase activity history and personal stats.
-- **Discovery** - Find developers and groups.
+## Getting Started
 
-## 🛠️ Tech Stack
+### Prerequisites
 
-- Java
-- Spring Boot
-- Spring Security
-- Spring Data JPA / Hibernate
+- Java 21
 - PostgreSQL
-- JWT
-- Maven
+- Maven (or the included Maven Wrapper)
 
-## 🚧 Status
+### Running the Application
 
-GitRats is currently under development. Features and architecture are still evolving, and the list above represents the project's intended direction rather than a finished feature set.
+```bash
+./mvnw spring-boot:run
+```
 
-More details, screenshots, and setup instructions will be added as development progresses.
+### Configuration
+
+Configure the database connection in `src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/[database_name]
+spring.datasource.username=[username]
+spring.datasource.password=[password]
+```
+
+Provide any additional security and application settings required by your local configuration. Avoid hardcoding secrets in the source code.
+
 
 ---
 
-*Built by [rafael-vincensi](https://github.com/rafael-vincensi)*
+Built by [rafael-vincensi](https://github.com/rafael-vincensi)
