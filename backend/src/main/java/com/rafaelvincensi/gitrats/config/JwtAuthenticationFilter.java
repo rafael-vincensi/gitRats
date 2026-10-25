@@ -1,6 +1,6 @@
 package com.rafaelvincensi.gitrats.token;
 
-import com.rafaelvincensi.gitrats.common.exception.BusinessException;
+import com.rafaelvincensi.gitrats.exception.BusinessException;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserService;
 import jakarta.servlet.FilterChain;
@@ -20,11 +20,11 @@ import java.util.UUID;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
     private final UserService userService;
 
-    public JwtAuthenticationFilter(TokenProvider tokenProvider, UserService userService) {
-        this.tokenProvider = tokenProvider;
+    public JwtAuthenticationFilter(TokenService tokenService, UserService userService) {
+        this.tokenService = tokenService;
         this.userService = userService;
     }
 
@@ -40,13 +40,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authorizationHeader.substring(7);
-        boolean validatedToken = tokenProvider.validateToken(token);
+        boolean validatedToken = tokenService.validateToken(token);
 
         if (!validatedToken) {
             throw new BusinessException("Unauthorized");
         }
 
-        UUID userId = UUID.fromString(tokenProvider.getUserIdFromToken(token));
+        UUID userId = UUID.fromString(tokenService.getUserIdFromToken(token));
         User user = userService.findById(userId);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
