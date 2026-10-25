@@ -1,32 +1,27 @@
 package com.rafaelvincensi.gitrats.auth;
 
-import com.rafaelvincensi.gitrats.common.exception.BusinessException;
-import com.rafaelvincensi.gitrats.token.TokenProvider;
-import com.rafaelvincensi.gitrats.user.User;
-import com.rafaelvincensi.gitrats.user.UserService;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.rafaelvincensi.gitrats.user.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService {
+public class AuthService implements UserDetailsService {
 
-    private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
-    private final TokenProvider tokenProvider;
+    private final UserRepository userRepository;
 
-    public AuthService(UserService userService, PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-        this.tokenProvider = tokenProvider;
+    public AuthService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public LoginResponse login(LoginRequest request){
-        User user = userService.findByEmail(request.email());
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserDetails user = userRepository.findUserDetailsByEmail(username);
 
-        if (passwordEncoder.matches(request.password(), user.getPasswordHash())){
-            String token = tokenProvider.generateToken(user);
-                return new LoginResponse(token);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with email " + username);
         }
-        throw new BusinessException("Invalid email or password!");
+        return user;
     }
 }
