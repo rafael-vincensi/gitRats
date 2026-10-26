@@ -10,6 +10,7 @@ public record UserResponseDTO(
         String username,
         String name,
         String bio,
+        String avatarUrl,
         String githubId,
         String githubUsername
 ){
@@ -20,6 +21,7 @@ public record UserResponseDTO(
                 user.getUsername(),
                 user.getName(),
                 user.getBio(),
+                user.getAvatarUrl(),
                 user.getGithubId(),
                 user.getGithubUsername());
 }
