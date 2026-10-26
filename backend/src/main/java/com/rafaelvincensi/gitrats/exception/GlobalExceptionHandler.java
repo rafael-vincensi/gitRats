@@ -19,4 +19,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDetails);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorDetails> handleNotFoundException(NotFoundException ex){
+        var errorDetails = new ErrorDetails(HttpStatus.NOT_FOUND.value(), ex.getMessage(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
+    }
+
 }
