@@ -1,6 +1,6 @@
-package com.rafaelvincensi.gitrats.user;
+package com.rafaelvincensi.gitrats.user.dto;
 
-public record LinkGithubRequest(
+public record LinkGithubRequestDTO(
         String githubId,
         String githubUsername
 ){}
