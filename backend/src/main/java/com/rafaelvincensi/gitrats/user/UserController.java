@@ -1,5 +1,12 @@
 package com.rafaelvincensi.gitrats.user;
 
+import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
+import com.rafaelvincensi.gitrats.user.dto.LinkGithubRequestDTO;
+import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
+import com.rafaelvincensi.gitrats.user.dto.UserResponseDTO;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -15,24 +22,18 @@ public class UserController {
     }
 
     @PostMapping
-    public UserResponse createUser(@RequestBody CreateUserRequest request){
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody CreateUserRequestDTO request){
         User user = userService.createUser(request);
+        var response = UserResponseDTO.fromEntity(user);
 
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getName(),
-                user.getBio(),
-                user.getAvatarUrl(),
-                user.getGithubUsername()
-        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    public UserResponse findById(@PathVariable UUID id){
+    public UserResponseDTO findById(@PathVariable UUID id){
         User user = userService.findById(id);
 
-        return new UserResponse(
+        return new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),
                 user.getName(),
@@ -57,7 +58,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserResponse updateProfileUser(@PathVariable UUID id, @RequestBody UpdateProfileRequest request){
+    public UserResponse updateProfileUser(@PathVariable UUID id, @RequestBody UpdateProfileRequestDTO request){
         User user =  userService.updateProfileUser(id, request);
 
         return new UserResponse(
@@ -71,7 +72,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/github")
-    public UserResponse linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequest request){
+    public UserResponse linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequestDTO request){
         User user = userService.linkGithub(id, request);
 
         return new UserResponse(
