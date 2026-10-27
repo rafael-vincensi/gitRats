@@ -63,7 +63,7 @@ public class UserService {
 
     public User findByGithubId(String githubId){
         return userRepository.findByGithubId(githubId)
-                .orElseThrow(() -> new BusinessException("User not found!"));
+                .orElseThrow(() -> new NotFoundException("User not found!"));
     }
 
     public User updateProfileUser(UUID id, UpdateProfileRequestDTO request){
