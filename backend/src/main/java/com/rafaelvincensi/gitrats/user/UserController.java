@@ -5,6 +5,7 @@ import com.rafaelvincensi.gitrats.user.dto.LinkGithubRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UserResponseDTO;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,17 +47,11 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserResponseDTO updateProfileUser(@PathVariable UUID id, @RequestBody UpdateProfileRequestDTO request){
+    public ResponseEntity<UserResponseDTO> updateProfileUser(@Valid @RequestBody UpdateProfileRequestDTO request, @PathVariable UUID id){
         User user =  userService.updateProfileUser(id, request);
+        var response = UserResponseDTO.fromEntity(user);
 
-        return new UserResponseDTO(
-                user.getId(),
-                user.getUsername(),
-                user.getName(),
-                user.getBio(),
-                user.getAvatarUrl(),
-                user.getGithubUsername()
-        );
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}/github")
