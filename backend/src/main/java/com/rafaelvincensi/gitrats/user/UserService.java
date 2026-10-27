@@ -68,7 +68,7 @@ public class UserService {
 
     public User updateProfileUser(UUID id, UpdateProfileRequestDTO request){
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("User not found!"));
+                .orElseThrow(() -> new NotFoundException("User not found!"));
 
        if (request.username() != null) {
            if (request.username().isBlank()){
