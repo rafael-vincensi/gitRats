@@ -58,7 +58,7 @@ public class UserService {
 
     public User findByEmail(String email){
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("User not found!"));
+                .orElseThrow(() -> new NotFoundException("User not found!"));
     }
 
     public User findByGithubId(String githubId){
