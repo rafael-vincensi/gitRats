@@ -38,17 +38,11 @@ public class UserController {
     }
 
     @GetMapping("/username/{username}")
-    public UserResponseDTO findByUsername(@PathVariable String username){
-        User user = userService.findByUsername(username);
+    public ResponseEntity<UserResponseDTO> findByUsername(@PathVariable String username){
+        User userByUsername = userService.findByUsername(username);
+        var response = UserResponseDTO.fromEntity(userByUsername);
 
-        return new UserResponseDTO(
-                user.getId(),
-                user.getUsername(),
-                user.getName(),
-                user.getBio(),
-                user.getAvatarUrl(),
-                user.getGithubUsername()
-        );
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}")
