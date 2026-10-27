@@ -1,6 +1,11 @@
 package com.rafaelvincensi.gitrats.user;
 
-import com.rafaelvincensi.gitrats.common.exception.BusinessException;
+import com.rafaelvincensi.gitrats.exception.BusinessException;
+import com.rafaelvincensi.gitrats.exception.ConflictException;
+import com.rafaelvincensi.gitrats.exception.NotFoundException;
+import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
+import com.rafaelvincensi.gitrats.user.dto.LinkGithubRequestDTO;
+import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +24,15 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User createUser(CreateUserRequest request){
+    public User createUser(CreateUserRequestDTO request){
         userRepository.findByUsername(request.username())
                 .ifPresent(user -> {
-                            throw new BusinessException("Username already exists!");
+                            throw new ConflictException("Username already exists!");
                 });
 
         userRepository.findByEmail(request.email())
                         .ifPresent(user -> {
-                            throw new BusinessException("Email already exists!");
+                            throw new ConflictException("Email already exists!");
                         });
 
         String passwordHash = passwordEncoder.encode(request.password());
@@ -43,7 +48,7 @@ public class UserService {
 
     public User findById(UUID id){
         return userRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("User not found!"));
+                .orElseThrow(() -> new NotFoundException("User not found!"));
     }
 
     public User findByUsername(String username){
@@ -61,7 +66,7 @@ public class UserService {
                 .orElseThrow(() -> new BusinessException("User not found!"));
     }
 
-    public User updateProfileUser(UUID id, UpdateProfileRequest request){
+    public User updateProfileUser(UUID id, UpdateProfileRequestDTO request){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("User not found!"));
 
@@ -87,7 +92,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User linkGithub(UUID id, LinkGithubRequest request){
+    public User linkGithub(UUID id, LinkGithubRequestDTO request){
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("User not found!"));
