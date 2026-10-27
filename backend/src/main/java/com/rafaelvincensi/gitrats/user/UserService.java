@@ -1,6 +1,5 @@
 package com.rafaelvincensi.gitrats.user;
 
-import com.rafaelvincensi.gitrats.exception.BusinessException;
 import com.rafaelvincensi.gitrats.exception.ConflictException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
@@ -9,7 +8,6 @@ import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
