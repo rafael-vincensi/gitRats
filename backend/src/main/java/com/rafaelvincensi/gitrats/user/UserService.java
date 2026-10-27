@@ -42,7 +42,7 @@ public class UserService {
         user.setUsername(request.username());
         user.setEmail(request.email());
         user.setPasswordHash(passwordHash);
-        user.setCreatedAt(Instant.now());
+        user.setCreatedAt(LocalDateTime.now());
 
         return userRepository.save(user);
     }
