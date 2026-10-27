@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,24 +71,21 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found!"));
 
-       if (request.username() != null) {
-           if (request.username().isBlank()){
-               throw new BusinessException("Username cannot be empty or blank!");
+        if (request.username() != null && !request.username().isBlank()){
+            userRepository.findByUsername(request.username())
+                    .ifPresent(existingUser -> {
+                        if (!user.getId().equals(existingUser.getId())) {
+                            throw new ConflictException("User already exists!");
+                        }
+                    });
+            user.setUsername(request.username());
            }
 
-           Optional<User> userOptional = userRepository.findByUsername(request.username());
-           if (userOptional.isPresent()){
-               if (!user.getId().equals(userOptional.get().getId())){
-                   throw new BusinessException("Username already exists!");
-               }
-           }
-       }
-
-        if (request.username() != null) user.setUsername(request.username());
-        if (request.name() != null) user.setName(request.name());
+        if (request.name() != null && !request.name().isBlank()) user.setName(request.name());
         if (request.bio() != null) user.setBio(request.bio());
         if (request.avatarUrl() != null) user.setAvatarUrl(request.avatarUrl());
         if (request.timezone() != null) user.setTimezone(request.timezone());
+        user.setUpdatedAt(LocalDateTime.now());
 
         return userRepository.save(user);
     }
