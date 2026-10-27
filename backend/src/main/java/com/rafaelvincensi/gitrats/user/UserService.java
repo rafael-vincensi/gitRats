@@ -53,7 +53,7 @@ public class UserService {
 
     public User findByUsername(String username){
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new BusinessException("User not Found!"));
+                .orElseThrow(() -> new NotFoundException("User not Found!"));
 }
 
     public User findByEmail(String email){
