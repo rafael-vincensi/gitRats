@@ -30,8 +30,16 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserResponseDTO findById(@PathVariable UUID id){
-        User user = userService.findById(id);
+    public ResponseEntity<UserResponseDTO> findById(@PathVariable UUID id){
+        User userById = userService.findById(id);
+        var response = UserResponseDTO.fromEntity(userById);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/username/{username}")
+    public UserResponseDTO findByUsername(@PathVariable String username){
+        User user = userService.findByUsername(username);
 
         return new UserResponseDTO(
                 user.getId(),
@@ -43,25 +51,11 @@ public class UserController {
         );
     }
 
-    @GetMapping("/username/{username}")
-    public UserResponse findByUsername(@PathVariable String username){
-        User user = userService.findByUsername(username);
-
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getName(),
-                user.getBio(),
-                user.getAvatarUrl(),
-                user.getGithubUsername()
-        );
-    }
-
     @PatchMapping("/{id}")
-    public UserResponse updateProfileUser(@PathVariable UUID id, @RequestBody UpdateProfileRequestDTO request){
+    public UserResponseDTO updateProfileUser(@PathVariable UUID id, @RequestBody UpdateProfileRequestDTO request){
         User user =  userService.updateProfileUser(id, request);
 
-        return new UserResponse(
+        return new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),
                 user.getName(),
@@ -72,10 +66,10 @@ public class UserController {
     }
 
     @PostMapping("/{id}/github")
-    public UserResponse linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequestDTO request){
+    public UserResponseDTO linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequestDTO request){
         User user = userService.linkGithub(id, request);
 
-        return new UserResponse(
+        return new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),
                 user.getName(),
