@@ -107,7 +107,7 @@ public class UserService {
 
         public User unlinkGithub(UUID id){
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("User not found!"));
+                .orElseThrow(() -> new NotFoundException("User not found!"));
 
         user.setGithubId(null);
         user.setGithubUsername(null);
