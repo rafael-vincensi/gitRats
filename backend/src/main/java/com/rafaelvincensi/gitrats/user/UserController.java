@@ -55,17 +55,11 @@ public class UserController {
     }
 
     @PostMapping("/{id}/github")
-    public UserResponseDTO linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequestDTO request){
-        User user = userService.linkGithub(id, request);
+    public ResponseEntity<UserResponseDTO> linkGithub(@PathVariable UUID id, @RequestBody LinkGithubRequestDTO request){
+        User linkGithub = userService.linkGithub(id, request);
+        var response = UserResponseDTO.fromEntity(linkGithub);
 
-        return new UserResponseDTO(
-                user.getId(),
-                user.getUsername(),
-                user.getName(),
-                user.getBio(),
-                user.getAvatarUrl(),
-                user.getGithubUsername()
-        );
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}/github")
