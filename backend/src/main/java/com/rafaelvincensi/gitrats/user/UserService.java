@@ -93,12 +93,12 @@ public class UserService {
     public User linkGithub(UUID id, LinkGithubRequestDTO request){
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("User not found!"));
+                .orElseThrow(() -> new ConflictException("User not found!"));
 
         Optional<User> useGithubId = userRepository.findByGithubId(request.githubId());
             if (useGithubId.isPresent()){
                 if (!user.getId().equals(useGithubId.get().getId()))
-                    throw new BusinessException("GitHub is linked to another user!");
+                    throw new ConflictException("GitHub is linked to another user!");
                  }
                 user.setGithubId(request.githubId());
                 user.setGithubUsername(request.githubUsername());
