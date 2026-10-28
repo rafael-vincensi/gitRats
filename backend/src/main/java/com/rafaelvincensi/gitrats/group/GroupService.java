@@ -4,10 +4,12 @@ import com.rafaelvincensi.gitrats.exception.ConflictException;
 import com.rafaelvincensi.gitrats.exception.GroupMaxCapacityException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
+import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.cglib.core.Local;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -75,6 +77,23 @@ public class GroupService {
         membership.setJoinedAt(LocalDateTime.now());
 
         return groupMembershipRepository.save(membership);
+    }
+
+    public Group updateGroup(UUID id, User user, UpdateGroupDTO request){
+        var group = groupRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Group not found!"));
+
+        boolean isFounder = groupMembershipRepository.existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER);
+
+        if (!isFounder) {
+            throw new AccessDeniedException("Only the group founder can perform this action!");
+        }
+
+        if (group.getName() != null && !request.name().isBlank()) group.setName(request.name());
+        if (group.getDescription() != null && !request.description().isBlank()) group.setDescription(request.description());
+        if (group.getAvatarUrl() != null && !request.avatarUrl().isBlank()) group.setAvatarUrl(request.avatarUrl());
+
+        return groupRepository.save(group);
     }
 
 }
