@@ -9,6 +9,6 @@ public record CreateGroupDTO(
         @Size(min = 3, max = 26)
         String name,
 
-        @Size(max = 80)
+        @Size(max = 80, message = "Description cannot exceed 80 characters")
         String description
 ) {}
