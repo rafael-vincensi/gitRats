@@ -1,10 +1,16 @@
 package com.rafaelvincensi.gitrats.group;
 
+import com.rafaelvincensi.gitrats.exception.ConflictException;
+import com.rafaelvincensi.gitrats.exception.GroupMaxCapacityException;
+import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.user.User;
+import com.rafaelvincensi.gitrats.user.UserService;
 import jakarta.transaction.Transactional;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,10 +19,12 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final GroupMembershipRepository groupMembershipRepository;
+    private final UserService userService;
 
-    public GroupService(GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository) {
+    public GroupService(GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository, UserService userService) {
         this.groupRepository = groupRepository;
         this.groupMembershipRepository = groupMembershipRepository;
+        this.userService = userService;
     }
 
     @Transactional
@@ -41,6 +49,32 @@ public class GroupService {
         groupMembershipRepository.save(membership);
 
         return savedGroup;
+    }
+
+    public GroupMembership joinGroup(String code, User user){
+
+        Group group = groupRepository.findByCode(code)
+                .orElseThrow(() -> new NotFoundException("Group not found!"));
+
+        boolean inGroup = groupMembershipRepository.existsByGroupIdAndUserId(group.getId(), user.getId());
+
+        if (inGroup){
+            throw new ConflictException("You already a member of this group!");
+        }
+
+        long groupMembersCount = groupMembershipRepository.countByGroupId(group.getId());
+
+        if (groupMembersCount >= 20){
+            throw new GroupMaxCapacityException("Group already has 20 members!");
+        }
+
+        GroupMembership membership = new GroupMembership();
+        membership.setGroup(group);
+        membership.setRole(GroupRole.MEMBER);
+        membership.setUser(user);
+        membership.setJoinedAt(LocalDateTime.now());
+
+        return groupMembershipRepository.save(membership);
     }
 
 }
