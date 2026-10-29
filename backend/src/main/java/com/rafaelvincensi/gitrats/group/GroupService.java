@@ -8,11 +8,9 @@ import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserService;
 import jakarta.transaction.Transactional;
-import org.springframework.cglib.core.Local;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -79,8 +77,8 @@ public class GroupService {
         return groupMembershipRepository.save(membership);
     }
 
-    public Group updateGroup(UUID id, User user, UpdateGroupDTO request){
-        var group = groupRepository.findById(id)
+    public Group updateGroup(UUID groupId, User user, UpdateGroupDTO request){
+        var group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group not found!"));
 
         boolean isFounder = groupMembershipRepository.existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER);
