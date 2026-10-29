@@ -94,4 +94,15 @@ public class GroupService {
         return groupRepository.save(group);
     }
 
+    public void exitGroup(User user, UUID groupId){
+        var membership = groupMembershipRepository.findByGroupIdAndUserId(groupId, user.getId())
+                .orElseThrow(() -> new NotFoundException("You are not a member of this group!"));
+
+        if (membership.getRole() == GroupRole.FOUNDER){
+            throw new AccessDeniedException("The founder cannot exit the group! Delete group instead.");
+        }
+
+        groupMembershipRepository.delete(membership);
+    }
+
 }
