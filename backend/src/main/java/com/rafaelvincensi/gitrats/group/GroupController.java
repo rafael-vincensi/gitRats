@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,5 +27,13 @@ public class GroupController {
         var response = GroupResponseDTO.fromEntity(savedGroup);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/{code}/join")
+    public ResponseEntity<Void> joinGroup(@PathVariable String code,
+                                                      @AuthenticationPrincipal User user){
+        GroupMembership joinGroup = groupService.joinGroup(code, user);
+
+        return ResponseEntity.noContent().build();
     }
 }
