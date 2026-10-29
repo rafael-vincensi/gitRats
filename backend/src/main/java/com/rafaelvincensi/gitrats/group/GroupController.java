@@ -32,8 +32,7 @@ public class GroupController {
     }
 
     @PostMapping("/{code}/join")
-    public ResponseEntity<Void> joinGroup(@PathVariable String code,
-                                                      @AuthenticationPrincipal User user){
+    public ResponseEntity<Void> joinGroup(@PathVariable String code, @AuthenticationPrincipal User user){
         GroupMembership joinGroup = groupService.joinGroup(code, user);
 
         return ResponseEntity.noContent().build();
@@ -47,5 +46,12 @@ public class GroupController {
         var response = GroupResponseDTO.fromEntity(updateGroup);
 
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{groupId}/exit")
+    public ResponseEntity<Void> exitGroup(@PathVariable UUID groupId, @AuthenticationPrincipal User user){
+        groupService.exitGroup(user, groupId);
+
+        return ResponseEntity.noContent().build();
     }
 }
