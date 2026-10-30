@@ -3,13 +3,16 @@ package com.rafaelvincensi.gitrats.group;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.GroupResponseDTO;
 import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
+import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -53,5 +56,12 @@ public class GroupController {
         groupService.exitGroup(user, groupId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserGroupResponseDTO>> listMyGroups(@AuthenticationPrincipal User user){
+        var groups = groupService.listMyGroups(user);
+
+        return ResponseEntity.ok(groups);
     }
 }
