@@ -5,9 +5,11 @@ import com.rafaelvincensi.gitrats.exception.GroupMaxCapacityException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
+import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class GroupService {
 
@@ -106,12 +109,15 @@ public class GroupService {
         groupMembershipRepository.delete(membership);
     }
 
-    public List<GroupMembership> listMyGroups(User user) {
-        return groupMembershipRepository.findByUserId(user.getId());
-    }
+    public List<UserGroupResponseDTO> listMyGroups(User user){
+        var memberships = groupMembershipRepository.findByUserId(user.getId());
 
-    public Long countMembersGroup(UUID groupId){
-        return groupMembershipRepository.countByGroupId(groupId);
-    }
+        return memberships.stream()
+                .map(membership -> {
+                    Long totalMembers = groupMembershipRepository.countByGroupId(membership.getGroup().getId());
 
+                    return UserGroupResponseDTO.fromEntity(membership, totalMembers);
+                })
+                .toList();
+    }
 }
