@@ -4,17 +4,12 @@ import com.rafaelvincensi.gitrats.exception.ConflictException;
 import com.rafaelvincensi.gitrats.exception.GroupMaxCapacityException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
-import com.rafaelvincensi.gitrats.group.dto.GroupResponseDTO;
 import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
-import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserService;
 import jakarta.transaction.Transactional;
-import org.apache.coyote.Response;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -113,6 +108,10 @@ public class GroupService {
 
     public List<GroupMembership> listMyGroups(User user) {
         return groupMembershipRepository.findByUserId(user.getId());
+    }
+
+    public Long countMembersGroup(UUID groupId){
+        return groupMembershipRepository.countByGroupId(groupId);
     }
 
 }
