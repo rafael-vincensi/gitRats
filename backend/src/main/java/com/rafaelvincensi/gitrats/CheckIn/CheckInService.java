@@ -10,6 +10,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CheckInService {
@@ -45,4 +47,10 @@ public class CheckInService {
         return checkInRepository.save(newCheckIn);
     }
 
+    public List<CheckIn> checkInsByGroup(UUID groupId){
+    Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Group not found!"));
+
+        return checkInRepository.findByGroupIdOrderByCreatedAtDesc(groupId);
+    }
 }
