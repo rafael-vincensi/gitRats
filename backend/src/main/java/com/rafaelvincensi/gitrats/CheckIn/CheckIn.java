@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CheckInModel {
+public class CheckIn {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
