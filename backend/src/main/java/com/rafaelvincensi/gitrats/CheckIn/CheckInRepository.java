@@ -10,5 +10,6 @@ import java.util.UUID;
 public interface CheckInRepository extends JpaRepository<CheckIn, UUID> {
 
     List<CheckIn> findByGroupIdOrderByCreatedAtDesc(UUID groupId);
+    List<CheckIn> findByGroupIdInOrderByCreatedAtDesc(List<UUID> groupsId);
 
 }
