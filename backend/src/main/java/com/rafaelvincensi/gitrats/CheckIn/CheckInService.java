@@ -3,6 +3,7 @@ package com.rafaelvincensi.gitrats.CheckIn;
 import com.rafaelvincensi.gitrats.CheckIn.dto.CreateCheckInDTO;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.Group;
+import com.rafaelvincensi.gitrats.group.GroupMembership;
 import com.rafaelvincensi.gitrats.group.GroupMembershipRepository;
 import com.rafaelvincensi.gitrats.group.GroupRepository;
 import com.rafaelvincensi.gitrats.user.User;
@@ -52,5 +53,17 @@ public class CheckInService {
                 .orElseThrow(() -> new NotFoundException("Group not found!"));
 
         return checkInRepository.findByGroupIdOrderByCreatedAtDesc(groupId);
+    }
+    public List<CheckIn> allCheckIns(User user){
+
+        List<GroupMembership> memberships = groupMembershipRepository.findByUserId(user.getId());
+        List<UUID> groupsId = memberships.stream()
+                .map(m -> m.getGroup().getId()).toList();
+
+        if (groupsId.isEmpty()){
+            return List.of();
+        }
+
+        return checkInRepository.findByGroupIdInOrderByCreatedAtDesc(groupsId);
     }
 }
