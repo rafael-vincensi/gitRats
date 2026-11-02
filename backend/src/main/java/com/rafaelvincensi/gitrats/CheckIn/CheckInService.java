@@ -66,4 +66,15 @@ public class CheckInService {
 
         return checkInRepository.findByGroupIdInOrderByCreatedAtDesc(groupsId);
     }
+
+    public void deleteCheckIn(User user, UUID checkInId){
+        CheckIn checkin = checkInRepository.findById(checkInId)
+                .orElseThrow(() -> new NotFoundException("Check-in not found!"));
+
+        if (!user.getId().equals(checkin.getUser().getId())){
+            throw new AccessDeniedException("You can only delete your own check-ins!");
+        }
+
+        checkInRepository.deleteById(checkInId);
+    }
 }
