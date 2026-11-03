@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/checkin")
 public class CheckInController {
@@ -27,4 +30,12 @@ public class CheckInController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<List<CheckInResponseDTO>> checkInsByGroup(@PathVariable UUID groupId){
+        List<CheckIn> checkInListByGroup = checkInService.checkInsByGroup(groupId);
+        var response = checkInListByGroup.stream()
+                .map(checkIn -> CheckInResponseDTO.fromEntity(checkIn))
+                .toList();
+        return ResponseEntity.ok(response);
+    }
 }
