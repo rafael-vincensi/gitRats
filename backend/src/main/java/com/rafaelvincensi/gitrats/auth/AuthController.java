@@ -1,5 +1,6 @@
 package com.rafaelvincensi.gitrats.auth;
 
+import com.rafaelvincensi.gitrats.auth.dto.LoginRequestDTO;
 import com.rafaelvincensi.gitrats.token.TokenService;
 import com.rafaelvincensi.gitrats.user.User;
 import jakarta.validation.Valid;
