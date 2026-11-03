@@ -1,4 +1,4 @@
 package com.rafaelvincensi.gitrats.auth.dto;
 
-public record GitHubTokenResponseDTO (String acess_token){
+public record GitHubTokenResponseDTO (String access_token){
 }
