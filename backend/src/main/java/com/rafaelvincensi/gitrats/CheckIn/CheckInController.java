@@ -38,4 +38,14 @@ public class CheckInController {
                 .toList();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/feed")
+    public ResponseEntity<List<CheckInResponseDTO>> allCheckIns(@AuthenticationPrincipal User user){
+        List<CheckIn> checkInList = checkInService.allCheckIns(user);
+        var response = checkInList.stream()
+                .map(checkIn -> CheckInResponseDTO.fromEntity(checkIn))
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
 }
