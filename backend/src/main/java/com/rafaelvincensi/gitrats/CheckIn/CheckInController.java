@@ -48,4 +48,11 @@ public class CheckInController {
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCheckIn(@AuthenticationPrincipal User user, @PathVariable UUID id){
+        checkInService.deleteCheckIn(user, id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
