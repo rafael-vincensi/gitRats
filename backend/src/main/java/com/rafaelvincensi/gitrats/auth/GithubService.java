@@ -2,7 +2,10 @@ package com.rafaelvincensi.gitrats.auth;
 
 import com.rafaelvincensi.gitrats.auth.dto.GitHubTokenResponseDTO;
 import com.rafaelvincensi.gitrats.auth.dto.GithubTokenRequestDTO;
+import com.rafaelvincensi.gitrats.auth.dto.GithubUserResponseDTO;
+import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.user.User;
+import com.rafaelvincensi.gitrats.user.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -21,6 +24,12 @@ public class GithubService {
 
     private final RestClient restClient = RestClient.create();
 
+    private final UserRepository userRepository;
+
+    public GithubService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     public User loginWithGithub(String code){
     var requestBody = new GithubTokenRequestDTO(clientId, clientSecret, code, redirectUrl);
 
@@ -33,7 +42,25 @@ public class GithubService {
 
         String accessToken = tokenResponse.access_token();
 
-        return null;
+        GithubUserResponseDTO githubUser = restClient.get()
+                .uri("https://api.github.com/user")
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
+                .body(GithubUserResponseDTO.class);
+
+        String githubId = githubUser.id().toString();
+
+        User user = userRepository.findByGithubId(githubId)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setGithubId(githubId);
+                    newUser.setGithubUsername(githubUser.login());
+                    newUser.setUsername(githubUser.login());
+                    newUser.setEmail(githubUser.login() + "@github.com");
+
+                    return userRepository.save(newUser);
+        });
+        return user;
     }
 
 }
