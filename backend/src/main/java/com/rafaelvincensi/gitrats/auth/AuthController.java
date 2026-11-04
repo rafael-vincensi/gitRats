@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -20,10 +17,12 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final GithubService githubService;
 
-    public AuthController(AuthenticationManager authenticationManager, TokenService tokenService) {
+    public AuthController(AuthenticationManager authenticationManager, TokenService tokenService, GithubService githubService) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
+        this.githubService = githubService;
     }
 
     @PostMapping("/login")
@@ -32,6 +31,15 @@ public class AuthController {
         var authentication = authenticationManager.authenticate(token);
 
         User user = (User) authentication.getPrincipal();
+        String jwtToken = tokenService.generateToken(user);
+
+        return ResponseEntity.ok(Map.of("token", jwtToken));
+    }
+
+    @GetMapping("/callback/github")
+    public ResponseEntity<?> loginWithGithub(@RequestParam String code){
+        User user = githubService.loginWithGithub(code);
+
         String jwtToken = tokenService.generateToken(user);
 
         return ResponseEntity.ok(Map.of("token", jwtToken));
