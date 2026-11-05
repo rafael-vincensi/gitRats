@@ -52,6 +52,9 @@
         @Column(name = "highest_streak")
         private Integer highestStreak = 0;
 
+        @Column(name = "total_check_ins")
+        private Integer totalCheckIns = 0;
+
         @Column(name = "avatar_url")
         private String avatarUrl;
         private String bio;
