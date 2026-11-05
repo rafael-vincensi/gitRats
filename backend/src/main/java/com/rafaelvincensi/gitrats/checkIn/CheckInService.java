@@ -7,9 +7,11 @@ import com.rafaelvincensi.gitrats.group.GroupMembership;
 import com.rafaelvincensi.gitrats.group.GroupMembershipRepository;
 import com.rafaelvincensi.gitrats.group.GroupRepository;
 import com.rafaelvincensi.gitrats.user.User;
+import com.rafaelvincensi.gitrats.user.UserRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -20,11 +22,13 @@ public class CheckInService {
     private final CheckInRepository checkInRepository;
     private final GroupRepository groupRepository;
     private final GroupMembershipRepository groupMembershipRepository;
+    private final UserRepository userRepository;
 
-    public CheckInService(CheckInRepository checkInRepository, GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository) {
+    public CheckInService(CheckInRepository checkInRepository, GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository, UserRepository userRepository) {
         this.checkInRepository = checkInRepository;
         this.groupRepository = groupRepository;
         this.groupMembershipRepository = groupMembershipRepository;
+        this.userRepository = userRepository;
     }
 
     public CheckIn createCheckIn(User user, CreateCheckInDTO request){
@@ -36,6 +40,36 @@ public class CheckInService {
 
         Group group = groupRepository.findById(request.groupId())
                 .orElseThrow(() -> new NotFoundException("Group not found!"));
+
+        LocalDate today = LocalDate.now();
+        LocalDate lastCheckIn = user.getLastCheckIn();
+
+        if (lastCheckIn == null){
+            user.setCurrentStreak(1);
+            user.setHighestStreak(1);
+            user.setLastCheckIn(today);
+        } else {
+            long dayDifference = java.time.temporal.ChronoUnit.DAYS.between(lastCheckIn, today);
+
+            if (dayDifference == 1){
+                user.setCurrentStreak(user.getCurrentStreak() + 1);
+                user.setLastCheckIn(today);
+
+            } else if (dayDifference > 1){
+                user.setCurrentStreak(1);
+                user.setLastCheckIn(today);
+
+            } else {
+                user.setCurrentStreak(1);
+                user.setLastCheckIn(today);
+            }
+        }
+
+        if (user.getCurrentStreak() > user.getHighestStreak()){
+            user.setHighestStreak(user.getCurrentStreak());
+        }
+
+        userRepository.save(user);
 
         CheckIn newCheckIn = new CheckIn();
         newCheckIn.setTitle(request.title());
