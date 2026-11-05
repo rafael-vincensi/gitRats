@@ -1,6 +1,6 @@
-package com.rafaelvincensi.gitrats.CheckIn;
+package com.rafaelvincensi.gitrats.checkIn;
 
-import com.rafaelvincensi.gitrats.CheckIn.dto.CreateCheckInDTO;
+import com.rafaelvincensi.gitrats.checkIn.dto.CreateCheckInDTO;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.Group;
 import com.rafaelvincensi.gitrats.group.GroupMembership;

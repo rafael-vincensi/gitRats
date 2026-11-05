@@ -1,4 +1,4 @@
-package com.rafaelvincensi.gitrats.CheckIn.dto;
+package com.rafaelvincensi.gitrats.checkIn.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

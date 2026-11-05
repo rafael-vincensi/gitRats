@@ -1,6 +1,6 @@
-package com.rafaelvincensi.gitrats.CheckIn.dto;
+package com.rafaelvincensi.gitrats.checkIn.dto;
 
-import com.rafaelvincensi.gitrats.CheckIn.CheckIn;
+import com.rafaelvincensi.gitrats.checkIn.CheckIn;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

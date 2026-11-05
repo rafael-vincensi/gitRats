@@ -1,4 +1,4 @@
-package com.rafaelvincensi.gitrats.CheckIn;
+package com.rafaelvincensi.gitrats.checkIn;
 
 import com.rafaelvincensi.gitrats.group.Group;
 import com.rafaelvincensi.gitrats.user.User;

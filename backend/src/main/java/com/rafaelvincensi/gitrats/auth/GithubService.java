@@ -47,7 +47,7 @@ public class GithubService {
                 .retrieve()
                 .body(GithubUserResponseDTO.class);
 
-        String githubId = githubUser.id().toString();
+        String githubId = githubUser.id();
 
         User user = userRepository.findByGithubId(githubId)
                 .orElseGet(() -> {

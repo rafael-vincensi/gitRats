@@ -1,7 +1,7 @@
-package com.rafaelvincensi.gitrats.CheckIn;
+package com.rafaelvincensi.gitrats.checkIn;
 
-import com.rafaelvincensi.gitrats.CheckIn.dto.CheckInResponseDTO;
-import com.rafaelvincensi.gitrats.CheckIn.dto.CreateCheckInDTO;
+import com.rafaelvincensi.gitrats.checkIn.dto.CheckInResponseDTO;
+import com.rafaelvincensi.gitrats.checkIn.dto.CreateCheckInDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
