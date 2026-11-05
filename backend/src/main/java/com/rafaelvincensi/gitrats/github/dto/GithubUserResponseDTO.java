@@ -1,6 +1,4 @@
-package com.rafaelvincensi.gitrats.auth.dto;
-
-import java.util.UUID;
+package com.rafaelvincensi.gitrats.github.dto;
 
 public record GithubUserResponseDTO(
         String id,

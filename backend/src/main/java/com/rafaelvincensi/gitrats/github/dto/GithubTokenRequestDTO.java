@@ -1,4 +1,4 @@
-package com.rafaelvincensi.gitrats.auth.dto;
+package com.rafaelvincensi.gitrats.github.dto;
 
 public record GithubTokenRequestDTO(
         String client_id,

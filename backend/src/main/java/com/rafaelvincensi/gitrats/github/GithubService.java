@@ -1,8 +1,8 @@
-package com.rafaelvincensi.gitrats.auth;
+package com.rafaelvincensi.gitrats.github;
 
-import com.rafaelvincensi.gitrats.auth.dto.GitHubTokenResponseDTO;
-import com.rafaelvincensi.gitrats.auth.dto.GithubTokenRequestDTO;
-import com.rafaelvincensi.gitrats.auth.dto.GithubUserResponseDTO;
+import com.rafaelvincensi.gitrats.github.dto.GitHubTokenResponseDTO;
+import com.rafaelvincensi.gitrats.github.dto.GithubTokenRequestDTO;
+import com.rafaelvincensi.gitrats.github.dto.GithubUserResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
