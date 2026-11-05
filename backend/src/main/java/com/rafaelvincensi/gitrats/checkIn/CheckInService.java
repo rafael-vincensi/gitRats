@@ -47,21 +47,15 @@ public class CheckInService {
         if (lastCheckIn == null){
             user.setCurrentStreak(1);
             user.setHighestStreak(1);
-            user.setLastCheckIn(today);
+
         } else {
             long dayDifference = java.time.temporal.ChronoUnit.DAYS.between(lastCheckIn, today);
 
             if (dayDifference == 1){
                 user.setCurrentStreak(user.getCurrentStreak() + 1);
-                user.setLastCheckIn(today);
 
-            } else if (dayDifference > 1){
+            } else if (dayDifference > 1) {
                 user.setCurrentStreak(1);
-                user.setLastCheckIn(today);
-
-            } else {
-                user.setCurrentStreak(1);
-                user.setLastCheckIn(today);
             }
         }
 
@@ -69,6 +63,8 @@ public class CheckInService {
             user.setHighestStreak(user.getCurrentStreak());
         }
 
+        user.setTotalCheckIns(user.getTotalCheckIns() + 1);
+        user.setLastCheckIn(today);
         userRepository.save(user);
 
         CheckIn newCheckIn = new CheckIn();
