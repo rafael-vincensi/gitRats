@@ -1,85 +1,95 @@
-package com.rafaelvincensi.gitrats.user;
+    package com.rafaelvincensi.gitrats.user;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.jspecify.annotations.Nullable;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+    import jakarta.persistence.*;
+    import lombok.AllArgsConstructor;
+    import lombok.Getter;
+    import lombok.NoArgsConstructor;
+    import lombok.Setter;
+    import org.jspecify.annotations.Nullable;
+    import org.springframework.security.core.GrantedAuthority;
+    import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+    import java.time.LocalDate;
+    import java.time.LocalDateTime;
+    import java.util.Collection;
+    import java.util.List;
+    import java.util.UUID;
 
-@Entity
-@Table(name = "users")
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-public class User implements UserDetails {
+    @Entity
+    @Table(name = "users")
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue (strategy = GenerationType.UUID)
-    private UUID id;
+        @Id
+        @GeneratedValue (strategy = GenerationType.UUID)
+        private UUID id;
 
-    @Column(unique = true)
-    private String username;
-    private String name;
+        @Column(unique = true)
+        private String username;
+        private String name;
 
-    @Column(unique = true)
-    private String email;
+        @Column(unique = true)
+        private String email;
 
-    @Column(name = "password_hash")
-    private String passwordHash;
+        @Column(name = "password_hash")
+        private String passwordHash;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+        @Column(name = "created_at")
+        private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+        @Column(name = "updated_at")
+        private LocalDateTime updatedAt;
 
-   @Column(name = "avatar_url")
-    private String avatarUrl;
-    private String bio;
-    private String timezone;
+        @Column(name = "current_streak")
+        private Integer currentStreak = 0;
 
-    @Column(name = "github_id" , nullable = true)
-    private String githubId;
+        @Column(name = "last_check_in")
+        private LocalDate lastCheckIn;
 
-    @Column(nullable = true)
-    private String githubUsername;
+        @Column(name = "highest_streak")
+        private Integer highestStreak = 0;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        @Column(name = "avatar_url")
+        private String avatarUrl;
+        private String bio;
+        private String timezone;
+
+        @Column(name = "github_id" , nullable = true)
+        private String githubId;
+
+        @Column(nullable = true)
+        private String githubUsername;
+
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return List.of();
+        }
+
+        @Override
+        public @Nullable String getPassword() {
+            return "";
+        }
+
+        @Override
+        public boolean isAccountNonExpired() {
+            return UserDetails.super.isAccountNonExpired();
+        }
+
+        @Override
+        public boolean isAccountNonLocked() {
+            return UserDetails.super.isAccountNonLocked();
+        }
+
+        @Override
+        public boolean isCredentialsNonExpired() {
+            return UserDetails.super.isCredentialsNonExpired();
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return UserDetails.super.isEnabled();
+        }
     }
-
-    @Override
-    public @Nullable String getPassword() {
-        return "";
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
-}
