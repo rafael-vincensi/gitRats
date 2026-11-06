@@ -34,4 +34,8 @@ public record UserResponseDTO(
                 weeklyCommits
         );
     }
+
+    public static UserResponseDTO fromEntity(User user){
+        return fromEntity(user, 0);
+    }
 }
