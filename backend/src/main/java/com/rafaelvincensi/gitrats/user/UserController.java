@@ -1,13 +1,14 @@
 package com.rafaelvincensi.gitrats.user;
 
+import com.rafaelvincensi.gitrats.github.GithubService;
 import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.LinkGithubRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UserResponseDTO;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -16,10 +17,12 @@ import java.util.UUID;
 @RequestMapping("/users")
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
+    private final GithubService githubService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, GithubService githubService) {
         this.userService = userService;
+        this.githubService = githubService;
     }
 
     @PostMapping
@@ -28,6 +31,15 @@ public class UserController {
         var response = UserResponseDTO.fromEntity(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getProfile(@AuthenticationPrincipal User user){
+        Integer weeklyCommits = githubService.getWeeklyCommits(user.getGithubUsername(), user.getGithubAccessToken());
+
+        var response = UserResponseDTO.fromEntity(user, weeklyCommits);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
