@@ -63,7 +63,10 @@ public class GithubService {
 
                     return userRepository.save(newUser);
         });
-        return user;
+        user.setGithubAccessToken(accessToken);
+        user.setGithubUsername(githubUser.login());
+
+        return userRepository.save(user);
     }
 
     public Integer getWeeklyCommits(String githubUsername, String accessToken){
@@ -88,7 +91,7 @@ public class GithubService {
 
             return total;
         }catch (Exception e){
-            System.err.printf("Github error: " + e.getMessage());
+            System.err.println("Github error: " + e.getMessage());
             return 0;
         }
     }
