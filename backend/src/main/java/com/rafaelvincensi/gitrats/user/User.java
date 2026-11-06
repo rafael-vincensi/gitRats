@@ -66,6 +66,9 @@
         @Column(nullable = true)
         private String githubUsername;
 
+        @Column(name = "github_access_token")
+        private String githubAccessToken;
+
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
             return List.of();
