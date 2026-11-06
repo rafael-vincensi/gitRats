@@ -12,9 +12,13 @@ public record UserResponseDTO(
         String bio,
         String avatarUrl,
         String githubId,
-        String githubUsername
+        String githubUsername,
+        Integer currentStreak,
+        Integer highestStreak,
+        Integer totalCheckIns,
+        Integer weeklyCommits
 ){
-    public static UserResponseDTO fromEntity(User user){
+    public static UserResponseDTO fromEntity(User user, Integer weeklyCommits){
         return new UserResponseDTO(
                 user.getId(),
                 user.getEmail(),
@@ -23,6 +27,11 @@ public record UserResponseDTO(
                 user.getBio(),
                 user.getAvatarUrl(),
                 user.getGithubId(),
-                user.getGithubUsername());
-}
+                user.getGithubUsername(),
+                user.getCurrentStreak(),
+                user.getHighestStreak(),
+                user.getTotalCheckIns(),
+                weeklyCommits
+        );
+    }
 }
