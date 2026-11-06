@@ -36,6 +36,6 @@ public record UserResponseDTO(
     }
 
     public static UserResponseDTO fromEntity(User user){
-        return fromEntity(user, 0);
+        return fromEntity(user, null);
     }
 }
