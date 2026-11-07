@@ -1,6 +1,6 @@
 package com.rafaelvincensi.gitrats.rank;
 
-import com.rafaelvincensi.gitrats.checkIn.GroupLeaderboardDTO;
+import com.rafaelvincensi.gitrats.rank.dto.GroupLeaderboardDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +23,13 @@ public class LeaderboardController {
     @GetMapping("/{groupId}/leaderboard/checkins")
     public ResponseEntity<List<GroupLeaderboardDTO>> getCheckInLeaderboard(@PathVariable UUID groupId){
         List<GroupLeaderboardDTO> leaderboard = leaderboardService.getGroupCheckInLeaderboard(groupId);
+
+        return ResponseEntity.ok(leaderboard);
+    }
+
+    @GetMapping("/{groupId}/leaderboard/commits")
+    public ResponseEntity<List<GroupLeaderboardDTO>> getCommitLeaderboard(@PathVariable UUID groupId){
+        List<GroupLeaderboardDTO> leaderboard = leaderboardService.getGroupCommitLeaderboard(groupId);
 
         return ResponseEntity.ok(leaderboard);
     }
