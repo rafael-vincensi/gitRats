@@ -1,5 +1,6 @@
 package com.rafaelvincensi.gitrats.checkIn;
 
+import com.rafaelvincensi.gitrats.rank.dto.GroupLeaderboardDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

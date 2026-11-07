@@ -1,4 +1,4 @@
-package com.rafaelvincensi.gitrats.checkIn;
+package com.rafaelvincensi.gitrats.rank.dto;
 
 import java.util.UUID;
 
