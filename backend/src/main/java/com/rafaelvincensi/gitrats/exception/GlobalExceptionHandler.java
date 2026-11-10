@@ -49,4 +49,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<ErrorDetails> handleFileUploadException(FileUploadException ex){
+        var errorDetails = new ErrorDetails(HttpStatus.BAD_GATEWAY.value(), ex.getMessage(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(errorDetails);
+    }
+
 }
