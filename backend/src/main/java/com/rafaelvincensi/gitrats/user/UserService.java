@@ -83,7 +83,7 @@ public class UserService {
             user.setUsername(request.username());
            }
 
-        if(file != null && !file.isEmpty()){
+        if (file != null && !file.isEmpty()){
             String newAvatar = uploadService.uploadFile(file, "avatars");
             user.setAvatarUrl(newAvatar);
         }

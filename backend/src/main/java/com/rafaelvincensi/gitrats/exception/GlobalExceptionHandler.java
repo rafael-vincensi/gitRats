@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import org.springframework.security.access.AccessDeniedException;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @ControllerAdvice
@@ -38,6 +40,13 @@ public class GlobalExceptionHandler {
         var errorDetails = new ErrorDetails(HttpStatus.FORBIDDEN.value(), ex.getMessage(), LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetails);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ErrorDetails> handleIOException(IOException ex){
+        var errorDetails = new ErrorDetails(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
 }
