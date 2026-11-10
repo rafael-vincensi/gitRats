@@ -72,7 +72,6 @@ public class UserService {
     }
 
     public User updateProfileUser(UUID id, UpdateProfileRequestDTO request, MultipartFile file) {
-
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found!"));
 

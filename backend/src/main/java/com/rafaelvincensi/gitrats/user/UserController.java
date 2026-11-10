@@ -6,10 +6,13 @@ import com.rafaelvincensi.gitrats.user.dto.LinkGithubRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UserResponseDTO;
 import jakarta.validation.Valid;
+import org.apache.hc.client5.http.entity.mime.MultipartPart;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -58,9 +61,11 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> updateProfileUser(@Valid @RequestBody UpdateProfileRequestDTO request, @PathVariable UUID id){
-        User user =  userService.updateProfileUser(id, request);
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponseDTO> updateProfileUser(@Valid @RequestPart("data") UpdateProfileRequestDTO request,
+                                                             @PathVariable UUID id,
+                                                             @RequestPart(value = "file", required = false) MultipartFile file){
+        User user =  userService.updateProfileUser(id, request, file);
         var response = UserResponseDTO.fromEntity(user);
 
         return ResponseEntity.ok(response);
