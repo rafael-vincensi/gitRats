@@ -1,5 +1,6 @@
 package com.rafaelvincensi.gitrats.user;
 
+import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
 import com.rafaelvincensi.gitrats.exception.ConflictException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
@@ -7,6 +8,7 @@ import com.rafaelvincensi.gitrats.user.dto.LinkGithubRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -17,10 +19,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UploadService uploadService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UploadService uploadService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.uploadService = uploadService;
     }
 
     public User createUser(CreateUserRequestDTO request){
@@ -65,7 +69,7 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found!"));
     }
 
-    public User updateProfileUser(UUID id, UpdateProfileRequestDTO request){
+    public User updateProfileUser(UUID id, UpdateProfileRequestDTO request, MultipartFile file){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found!"));
 
@@ -79,9 +83,13 @@ public class UserService {
             user.setUsername(request.username());
            }
 
+        if(file != null && !file.isEmpty()){
+            String newAvatar = uploadService.uploadFile(file, "avatars");
+            user.setAvatarUrl(newAvatar);
+        }
+
         if (request.name() != null && !request.name().isBlank()) user.setName(request.name());
         if (request.bio() != null) user.setBio(request.bio());
-        if (request.avatarUrl() != null) user.setAvatarUrl(request.avatarUrl());
         if (request.timezone() != null) user.setTimezone(request.timezone());
         user.setUpdatedAt(LocalDateTime.now());
 
