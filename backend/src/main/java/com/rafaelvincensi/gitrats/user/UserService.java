@@ -2,6 +2,7 @@ package com.rafaelvincensi.gitrats.user;
 
 import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
 import com.rafaelvincensi.gitrats.exception.ConflictException;
+import com.rafaelvincensi.gitrats.exception.FileUploadException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.LinkGithubRequestDTO;
@@ -10,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -69,7 +71,8 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found!"));
     }
 
-    public User updateProfileUser(UUID id, UpdateProfileRequestDTO request, MultipartFile file){
+    public User updateProfileUser(UUID id, UpdateProfileRequestDTO request, MultipartFile file) {
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found!"));
 
@@ -83,9 +86,14 @@ public class UserService {
             user.setUsername(request.username());
            }
 
-        if (file != null && !file.isEmpty()){
-            String newAvatar = uploadService.uploadFile(file, "avatars");
-            user.setAvatarUrl(newAvatar);
+        if (file != null && !file.isEmpty()) {
+            try {
+                byte[] imageBytes = file.getBytes();
+                String newAvatar = uploadService.uploadFile(imageBytes, "avatars");
+                user.setAvatarUrl(newAvatar);
+            } catch (IOException e) {
+                throw new FileUploadException("Failed to read image bytes: " + e.getMessage());
+            }
         }
 
         if (request.name() != null && !request.name().isBlank()) user.setName(request.name());
