@@ -21,7 +21,7 @@ public class UploadService {
         try {
             Map uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
-                    ObjectUtils.asMap("folder", folderName)
+                    ObjectUtils.asMap("asset_folder ", folderName)
             );
 
         return uploadResult.get("secure_url").toString();
