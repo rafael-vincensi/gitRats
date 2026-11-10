@@ -2,6 +2,7 @@ package com.rafaelvincensi.gitrats.config.cloudinary;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.rafaelvincensi.gitrats.exception.FileUploadException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,16 +18,16 @@ public class UploadService {
         this.cloudinary = cloudinary;
     }
 
-    public String uploadFile(MultipartFile file, String folderName){
+    public String uploadFile(byte[] imageBytes, String folderName){
         try {
             Map uploadResult = cloudinary.uploader().upload(
-                    file.getBytes(),
-                    ObjectUtils.asMap("asset_folder ", folderName)
+                    imageBytes,
+                    ObjectUtils.asMap("asset_folder", folderName)
             );
 
         return uploadResult.get("secure_url").toString();
-    } catch (IOException e) {
-            throw new RuntimeException("Failed to upload file to Cloudinary", e);
+    } catch (Exception e) {
+            throw new FileUploadException("Failed to upload file to Cloudinary: " + e.getMessage());
         }
     }
 
