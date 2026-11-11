@@ -38,14 +38,28 @@ public class CheckInService {
     }
 
     public CheckIn createCheckIn(User user, CreateCheckInDTO request, MultipartFile file){
+        Group group = groupRepository.findById(request.groupId())
+                .orElseThrow(() -> new NotFoundException("Group not found!"));
+
+
         boolean isMember = groupMembershipRepository.existsByGroupIdAndUserId(request.groupId(), user.getId());
 
         if (!isMember){
             throw new AccessDeniedException("You can only post check-in in your groups!");
         }
 
-        Group group = groupRepository.findById(request.groupId())
-                .orElseThrow(() -> new NotFoundException("Group not found!"));
+        if (file == null || file.isEmpty()){
+            throw new FileUploadException("A check-in image is required!");
+        }
+
+        String imageUrl = null;
+
+        try {
+            byte[] imageBytes = file.getBytes();
+            imageUrl = uploadService.uploadFile(imageBytes, "checkins");
+        } catch (IOException e) {
+            throw new FileUploadException("Failed to read image bytes: " + e.getMessage());
+        }
 
         LocalDate today = LocalDate.now();
         LocalDate lastCheckIn = user.getLastCheckIn();
@@ -68,21 +82,6 @@ public class CheckInService {
         if (user.getCurrentStreak() > user.getHighestStreak()){
             user.setHighestStreak(user.getCurrentStreak());
         }
-
-
-        if (file == null || file.isEmpty()){
-            throw new FileUploadException("A check-in image is required!");
-        }
-
-        String imageUrl = null;
-
-        try {
-            byte[] imageBytes = file.getBytes();
-            imageUrl = uploadService.uploadFile(imageBytes, "checkins");
-        } catch (IOException e) {
-            throw new FileUploadException("Failed to read image bytes: " + e.getMessage());
-        }
-
 
         user.setTotalCheckIns(user.getTotalCheckIns() + 1);
         user.setLastCheckIn(today);
