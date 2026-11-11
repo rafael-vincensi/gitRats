@@ -15,9 +15,6 @@ public record CreateCheckInDTO(
         @Size(max = 100)
         String description,
 
-        @NotBlank
-        String imageUrl,
-
         @NotNull
         UUID groupId
 ){}
