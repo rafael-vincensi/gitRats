@@ -1,6 +1,8 @@
 package com.rafaelvincensi.gitrats.checkIn;
 
 import com.rafaelvincensi.gitrats.checkIn.dto.CreateCheckInDTO;
+import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
+import com.rafaelvincensi.gitrats.exception.FileUploadException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.Group;
 import com.rafaelvincensi.gitrats.group.GroupMembership;
@@ -10,7 +12,9 @@ import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,15 +27,17 @@ public class CheckInService {
     private final GroupRepository groupRepository;
     private final GroupMembershipRepository groupMembershipRepository;
     private final UserRepository userRepository;
+    private final UploadService uploadService;
 
-    public CheckInService(CheckInRepository checkInRepository, GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository, UserRepository userRepository) {
+    public CheckInService(CheckInRepository checkInRepository, GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository, UserRepository userRepository, UploadService uploadService) {
         this.checkInRepository = checkInRepository;
         this.groupRepository = groupRepository;
         this.groupMembershipRepository = groupMembershipRepository;
         this.userRepository = userRepository;
+        this.uploadService = uploadService;
     }
 
-    public CheckIn createCheckIn(User user, CreateCheckInDTO request){
+    public CheckIn createCheckIn(User user, CreateCheckInDTO request, MultipartFile file){
         boolean isMember = groupMembershipRepository.existsByGroupIdAndUserId(request.groupId(), user.getId());
 
         if (!isMember){
@@ -63,6 +69,21 @@ public class CheckInService {
             user.setHighestStreak(user.getCurrentStreak());
         }
 
+
+        if (file == null || file.isEmpty()){
+            throw new FileUploadException("A check-in image is required!");
+        }
+
+        String imageUrl = null;
+
+        try {
+            byte[] imageBytes = file.getBytes();
+            imageUrl = uploadService.uploadFile(imageBytes, "checkins");
+        } catch (IOException e) {
+            throw new FileUploadException("Failed to read image bytes: " + e.getMessage());
+        }
+
+
         user.setTotalCheckIns(user.getTotalCheckIns() + 1);
         user.setLastCheckIn(today);
         userRepository.save(user);
@@ -70,7 +91,7 @@ public class CheckInService {
         CheckIn newCheckIn = new CheckIn();
         newCheckIn.setTitle(request.title());
         newCheckIn.setDescription(request.description());
-        newCheckIn.setImageUrl(request.imageUrl());
+        newCheckIn.setImageUrl(imageUrl);
         newCheckIn.setGroup(group);
         newCheckIn.setCreatedAt(LocalDateTime.now());
         newCheckIn.setUser(user);
