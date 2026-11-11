@@ -5,9 +5,11 @@ import com.rafaelvincensi.gitrats.checkIn.dto.CreateCheckInDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,9 +24,11 @@ public class CheckInController {
         this.checkInService = checkInService;
     }
 
-    @PostMapping
-    public ResponseEntity<CheckInResponseDTO> createCheckIn(@Valid @RequestBody CreateCheckInDTO request, @AuthenticationPrincipal User user){
-        CheckIn savedCheckin = checkInService.createCheckIn(user, request);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CheckInResponseDTO> createCheckIn(@AuthenticationPrincipal User user,
+                                                            @Valid @RequestPart("data") CreateCheckInDTO request,
+                                                            @RequestPart("file")MultipartFile file){
+        CheckIn savedCheckin = checkInService.createCheckIn(user, request, file);
         var response = CheckInResponseDTO.fromEntity(savedCheckin);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
