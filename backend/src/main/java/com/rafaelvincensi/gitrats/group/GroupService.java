@@ -1,6 +1,8 @@
 package com.rafaelvincensi.gitrats.group;
 
+import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
 import com.rafaelvincensi.gitrats.exception.ConflictException;
+import com.rafaelvincensi.gitrats.exception.FileUploadException;
 import com.rafaelvincensi.gitrats.exception.GroupMaxCapacityException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
@@ -11,7 +13,9 @@ import com.rafaelvincensi.gitrats.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -23,11 +27,13 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMembershipRepository groupMembershipRepository;
     private final UserService userService;
+    private final UploadService uploadService;
 
-    public GroupService(GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository, UserService userService) {
+    public GroupService(GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository, UserService userService, UploadService uploadService) {
         this.groupRepository = groupRepository;
         this.groupMembershipRepository = groupMembershipRepository;
         this.userService = userService;
+        this.uploadService = uploadService;
     }
 
     @Transactional
@@ -80,7 +86,7 @@ public class GroupService {
         return groupMembershipRepository.save(membership);
     }
 
-    public Group updateGroup(UUID groupId, User user, UpdateGroupDTO request){
+    public Group updateGroup(UUID groupId, User user, UpdateGroupDTO request, MultipartFile file){
         var group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group not found!"));
 
@@ -90,9 +96,18 @@ public class GroupService {
             throw new AccessDeniedException("Only the group founder can perform this action!");
         }
 
+        if (file != null && !file.isEmpty()){
+            try {
+            byte[] imageBytes = file.getBytes();
+            String newImageGroup = uploadService.uploadFile(imageBytes, "groups");
+            group.setAvatarUrl(newImageGroup);
+        } catch (IOException e){
+                throw new FileUploadException("Failed to read image bytes: " + e.getMessage());
+            }
+        }
+
         if (group.getName() != null && !request.name().isBlank()) group.setName(request.name());
         if (group.getDescription() != null && !request.description().isBlank()) group.setDescription(request.description());
-        if (group.getAvatarUrl() != null && !request.avatarUrl().isBlank()) group.setAvatarUrl(request.avatarUrl());
 
         return groupRepository.save(group);
     }
