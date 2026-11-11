@@ -106,8 +106,8 @@ public class GroupService {
             }
         }
 
-        if (group.getName() != null && !request.name().isBlank()) group.setName(request.name());
-        if (group.getDescription() != null && !request.description().isBlank()) group.setDescription(request.description());
+        if (request.name() != null && !request.name().isBlank()) group.setName(request.name());
+        if (request.description() != null && !request.description().isBlank()) group.setDescription(request.description());
 
         return groupRepository.save(group);
     }
