@@ -61,12 +61,12 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponseDTO> updateProfileUser(@Valid @RequestPart("data") UpdateProfileRequestDTO request,
-                                                             @PathVariable UUID id,
+                                                             @AuthenticationPrincipal User user,
                                                              @RequestPart(value = "file", required = false) MultipartFile file){
-        User user =  userService.updateProfileUser(id, request, file);
-        var response = UserResponseDTO.fromEntity(user);
+        User updateUser =  userService.updateProfileUser(user.getId(), request, file);
+        var response = UserResponseDTO.fromEntity(updateUser);
 
         return ResponseEntity.ok(response);
     }
