@@ -7,9 +7,11 @@ import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,11 +42,12 @@ public class GroupController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{groupId}")
+    @PatchMapping(value = "/{groupId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GroupResponseDTO> updateGroup(@PathVariable UUID groupId,
-                                                        @Valid @RequestBody UpdateGroupDTO request,
-                                                        @AuthenticationPrincipal User user){
-        Group updateGroup = groupService.updateGroup(groupId, user, request);
+                                                        @Valid @RequestPart("data") UpdateGroupDTO request,
+                                                        @AuthenticationPrincipal User user,
+                                                        @RequestPart(name = "file", required = false) MultipartFile file){
+        Group updateGroup = groupService.updateGroup(groupId, user, request, file);
         var response = GroupResponseDTO.fromEntity(updateGroup);
 
         return ResponseEntity.ok(response);
