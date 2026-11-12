@@ -16,7 +16,7 @@ public interface CheckInRepository extends JpaRepository<CheckIn, UUID> {
     List<CheckIn> findByGroupIdOrderByCreatedAtDesc(UUID groupId);
     List<CheckIn> findByGroupIdInOrderByCreatedAtDesc(List<UUID> groupsId);
 
-    @Query("SELECT new com.rafaelvincensi.gitrats.checkIn.GroupLeaderboardDTO(" +
+    @Query("SELECT new com.rafaelvincensi.gitrats.rank.dto.GroupLeaderboardDTO(" +
             "c.user.id, c.user.name, c.user.username, c.user.avatarUrl, COUNT(c)) " +
             "FROM CheckIn c " +
             "WHERE c.group.id = :groupId AND c.createdAt >= :since " +
