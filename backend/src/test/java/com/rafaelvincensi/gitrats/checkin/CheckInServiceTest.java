@@ -5,6 +5,7 @@ import com.rafaelvincensi.gitrats.checkIn.CheckInRepository;
 import com.rafaelvincensi.gitrats.checkIn.CheckInService;
 import com.rafaelvincensi.gitrats.checkIn.dto.CreateCheckInDTO;
 import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
+import com.rafaelvincensi.gitrats.exception.FileUploadException;
 import com.rafaelvincensi.gitrats.group.Group;
 import com.rafaelvincensi.gitrats.group.GroupMembershipRepository;
 import com.rafaelvincensi.gitrats.group.GroupRepository;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -121,4 +123,32 @@ public class CheckInServiceTest {
         verifyNoInteractions(uploadService);
         verify(checkInRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("Should throw FileUploadException when file is null or empty")
+    void shouldThrowFileUploadExceptionWhenFileIsNullOrEmpty() {
+        UUID groupId = UUID.randomUUID();
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(groupId);
+
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
+        when(groupMembershipRepository.existsByGroupIdAndUserId(groupId, user.getId())).thenReturn(true);
+
+        CreateCheckInDTO request = new CreateCheckInDTO("Go", "no image commit", groupId);
+
+        MultipartFile file = null;
+
+        FileUploadException exception = assertThrows(
+                FileUploadException.class,
+                () -> checkInService.createCheckIn(user, request, file)
+        );
+        assertEquals("A check-in image is required!", exception.getMessage());
+
+        verifyNoInteractions(uploadService);
+        verify(checkInRepository, never()).save(any());
+    }
+
 }
