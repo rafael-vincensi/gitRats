@@ -180,4 +180,21 @@ public class CheckInServiceTest {
         verify(checkInRepository, never()).save(any());
     }
 
+    @Test
+    @DisplayName("Should delete checkin successfully when user is the owner")
+    void shouldDeleteCheckInSuccessfully() {
+        UUID checkInId = UUID.randomUUID();
+
+        User owner = new User();
+        owner.setId(UUID.randomUUID());
+
+        CheckIn checkIn = new CheckIn();
+        checkIn.setId(checkInId);
+        checkIn.setUser(owner);
+
+        when(checkInRepository.findById(checkInId)).thenReturn(Optional.of(checkIn));
+        checkInService.deleteCheckIn(owner, checkInId);
+
+        verify(checkInRepository, times(1)).deleteById(checkInId);
+    }
 }
