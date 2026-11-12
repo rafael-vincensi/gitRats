@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -88,5 +89,36 @@ public class CheckInServiceTest {
 
         verify(userRepository, times(1)).save(user);
         verify(checkInRepository, times(1)).save(any(CheckIn.class));
+    }
+
+    @Test
+    @DisplayName("Should throw AccessDeniedException when user is not a group member")
+    void shouldThrowAccessDeniedExceptionWhenUserIsNotGroupMember(){
+        UUID groupId = UUID.randomUUID();
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        CreateCheckInDTO request = new CreateCheckInDTO("GO", "200 commits", groupId);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "image.jpg",
+                "image/jpg",
+                "fake-image-bytes".getBytes()
+        );
+
+        Group group = new Group();
+        group.setId(groupId);
+
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
+        when(groupMembershipRepository.existsByGroupIdAndUserId(groupId, user.getId())).thenReturn(false);
+
+        AccessDeniedException exception = assertThrows(
+                AccessDeniedException.class,
+                () -> checkInService.createCheckIn(user, request, file));
+
+        assertEquals("You can only post check-in in your groups!", exception.getMessage());
+        verifyNoInteractions(uploadService);
+        verify(checkInRepository, never()).save(any());
     }
 }
