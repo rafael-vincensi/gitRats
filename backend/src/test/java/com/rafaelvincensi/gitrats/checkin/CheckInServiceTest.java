@@ -6,6 +6,7 @@ import com.rafaelvincensi.gitrats.checkIn.CheckInService;
 import com.rafaelvincensi.gitrats.checkIn.dto.CreateCheckInDTO;
 import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
 import com.rafaelvincensi.gitrats.exception.FileUploadException;
+import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.Group;
 import com.rafaelvincensi.gitrats.group.GroupMembershipRepository;
 import com.rafaelvincensi.gitrats.group.GroupRepository;
@@ -146,6 +147,34 @@ public class CheckInServiceTest {
                 () -> checkInService.createCheckIn(user, request, file)
         );
         assertEquals("A check-in image is required!", exception.getMessage());
+
+        verifyNoInteractions(uploadService);
+        verify(checkInRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when group not found")
+    void shouldThrowWhenGroupNotFound(){
+        UUID groupId = UUID.randomUUID();
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        CreateCheckInDTO request = new CreateCheckInDTO("Rust", "Null Group!", groupId);
+
+        when(groupRepository.findById(groupId)).thenReturn(Optional.empty());
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "image.jpg",
+                "image/jpg",
+                "fake-image-bytes".getBytes()
+        );
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> checkInService.createCheckIn(user, request, file));
+
+        assertEquals("Group not found!", exception.getMessage());
 
         verifyNoInteractions(uploadService);
         verify(checkInRepository, never()).save(any());
