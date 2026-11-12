@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequestMapping("/checkin")
 public class CheckInController {
 
-    private CheckInService checkInService;
+    private final CheckInService checkInService;
 
     public CheckInController(CheckInService checkInService) {
         this.checkInService = checkInService;
