@@ -224,4 +224,25 @@ public class CheckInServiceTest {
 
         verify(checkInRepository, never()).deleteById(any());
     }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when checkin not found")
+    void shouldThrowWhenCheckInNotFound(){
+        UUID checkInId = UUID.randomUUID();
+        User owner = new User();
+        owner.setId(UUID.randomUUID());
+
+        when(checkInRepository.findById(checkInId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> checkInService.deleteCheckIn(owner, checkInId)
+        );
+
+        assertEquals("Check-in not found!", exception.getMessage());
+
+        verify(checkInRepository, never()).deleteById(any());
+    }
+
+
 }
