@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -76,7 +77,6 @@ public class UserServiceTest {
     @DisplayName("Should throw ConflictException when email already exists")
     void shouldThrowConflictExceptionWhenEmailAlreadyExists(){
         CreateUserRequestDTO request = new CreateUserRequestDTO("rafinhagoat", "rafael", "rafael@gmail.com", "rafinhagoatsenha");
-
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(new User()));
 
         ConflictException exception = assertThrows(
@@ -87,6 +87,25 @@ public class UserServiceTest {
         assertEquals("Email already exists!", exception.getMessage());
 
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should find user by id successfully")
+    void shouldFindUserByIdSuccessfully(){
+        UUID userId = UUID.randomUUID();
+        User user = new User();
+        user.setId(userId);
+        user.setUsername("rafinhagoat");
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        User foundUser = userService.findById(userId);
+
+        assertNotNull(foundUser);
+        assertEquals(userId, foundUser.getId());
+        assertEquals("rafinhagoat", foundUser.getUsername());
+
+        verify(userRepository, times(1)).findById(userId);
     }
 
 }
