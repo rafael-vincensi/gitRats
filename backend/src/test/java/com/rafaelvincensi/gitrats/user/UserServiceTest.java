@@ -1,6 +1,7 @@
 package com.rafaelvincensi.gitrats.user;
 
 import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
+import com.rafaelvincensi.gitrats.exception.ConflictException;
 import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,4 +53,23 @@ public class UserServiceTest {
         verify(passwordEncoder, times(1)).encode("rafinhagoatsenha");
         verify(userRepository, times(1)).save(any(User.class));
     }
+
+    @Test
+    @DisplayName("Should throw ConflictException when username already exists")
+    void shouldThrowConflictExceptionWhenUsernameAlreadyExists(){
+        CreateUserRequestDTO request = new CreateUserRequestDTO("rafinhagoat", "rafael", "rafael@gmail.com", "rafinhagoatsenha");
+
+        when(userRepository.findByUsername(request.username())).thenReturn(Optional.of(new User()));
+
+        ConflictException exception = assertThrows(
+                ConflictException.class,
+                () -> userService.createUser(request)
+        );
+
+        assertEquals("Username already exists!", exception.getMessage());
+
+        verify(userRepository, never()).findByEmail(any());
+        verify(userRepository, never()).save(any());
+    }
+
 }
