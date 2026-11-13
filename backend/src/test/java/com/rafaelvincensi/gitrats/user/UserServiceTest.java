@@ -173,4 +173,20 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findByGithubId(user.getGithubId());
     }
 
+    @Test
+    @DisplayName("Should throw NotFoundException when user GithubId not found")
+    void shouldThrowNotFoundExceptionWhenGithubIdNotFound(){
+        String githubId = "583232";
+
+        when(userRepository.findByGithubId(githubId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> userService.findByGithubId(githubId)
+        );
+
+        assertEquals("User not found!", exception.getMessage());
+        verify(userRepository, times(1)).findByGithubId(githubId);
+    }
+
 }
