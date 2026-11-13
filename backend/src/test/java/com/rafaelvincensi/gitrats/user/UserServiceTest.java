@@ -125,4 +125,19 @@ public class UserServiceTest {
 
         verify(userRepository, times(1)).findById(userId);
     }
+
+    @Test
+    @DisplayName("Should find user by username successfully")
+    void shouldFindUserByUsernameSuccessfully(){
+        User user = new User();
+        user.setUsername("rafinhagoat");
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+
+        User foundUser = userService.findByUsername(user.getUsername());
+
+        assertNotNull(foundUser);
+        assertEquals("rafinhagoat", foundUser.getUsername());
+        verify(userRepository, times(1)).findByUsername(user.getUsername());
+    }
 }
