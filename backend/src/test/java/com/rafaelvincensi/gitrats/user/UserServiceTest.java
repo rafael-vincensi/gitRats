@@ -72,4 +72,21 @@ public class UserServiceTest {
         verify(userRepository, never()).save(any());
     }
 
+    @Test
+    @DisplayName("Should throw ConflictException when email already exists")
+    void shouldThrowConflictExceptionWhenEmailAlreadyExists(){
+        CreateUserRequestDTO request = new CreateUserRequestDTO("rafinhagoat", "rafael", "rafael@gmail.com", "rafinhagoatsenha");
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(new User()));
+
+        ConflictException exception = assertThrows(
+                ConflictException.class,
+                () -> userService.createUser(request)
+        );
+
+        assertEquals("Email already exists!", exception.getMessage());
+
+        verify(userRepository, never()).save(any());
+    }
+
 }
