@@ -6,7 +6,6 @@ import com.rafaelvincensi.gitrats.user.dto.LinkGithubRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UserResponseDTO;
 import jakarta.validation.Valid;
-import org.apache.hc.client5.http.entity.mime.MultipartPart;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

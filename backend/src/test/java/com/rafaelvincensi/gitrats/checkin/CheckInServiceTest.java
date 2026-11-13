@@ -197,4 +197,31 @@ public class CheckInServiceTest {
 
         verify(checkInRepository, times(1)).deleteById(checkInId);
     }
+
+    @Test
+    @DisplayName("Should throw AccessDeniedException when user is not the owner of the check-in")
+    void shouldThrowAccessDeniedExceptionWhenUserIsNotOwner(){
+        UUID checkInId = UUID.randomUUID();
+
+        User owner = new User();
+        owner.setId(UUID.randomUUID());
+
+        User anotherUser = new User();
+        anotherUser.setId(UUID.randomUUID());
+
+        CheckIn checkIn = new CheckIn();
+        checkIn.setId(checkInId);
+        checkIn.setUser(owner);
+
+        when(checkInRepository.findById(checkInId)).thenReturn(Optional.of(checkIn));
+
+        AccessDeniedException exception = assertThrows(
+                AccessDeniedException.class,
+                () -> checkInService.deleteCheckIn(anotherUser, checkInId)
+        );
+
+        assertEquals("You can only delete your own check-ins!", exception.getMessage());
+
+        verify(checkInRepository, never()).deleteById(any());
+    }
 }
