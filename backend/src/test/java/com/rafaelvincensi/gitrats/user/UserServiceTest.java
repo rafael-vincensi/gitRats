@@ -4,6 +4,7 @@ import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
 import com.rafaelvincensi.gitrats.exception.ConflictException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
+import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -187,6 +188,39 @@ public class UserServiceTest {
 
         assertEquals("User not found!", exception.getMessage());
         verify(userRepository, times(1)).findByGithubId(githubId);
+    }
+
+    @Test
+    @DisplayName("Should update user profile successfully")
+    void shouldUpdateUserProfileSuccessfully(){
+        UUID userId = UUID.randomUUID();
+        User existingUser = new User();
+        existingUser.setId(userId);
+        existingUser.setUsername("rafinhagoat");
+        existingUser.setName("rafinha GOAT");
+
+        UpdateProfileRequestDTO request = new UpdateProfileRequestDTO(
+                "ye",
+                "rafinha GOAT",
+                "bio fera demais",
+                "America/Sao_Paulo");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUsername(request.username())).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User updateUser = userService.updateProfileUser(userId, request, null);
+
+        assertNotNull(updateUser);
+        assertEquals("ye", updateUser.getUsername());
+        assertEquals("rafinha GOAT", updateUser.getName());
+        assertEquals("bio fera demais", updateUser.getBio());
+        assertEquals("America/Sao_Paulo", updateUser.getTimezone());
+        assertNotNull(updateUser.getUpdatedAt());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1)).findByUsername(request.username());
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
 }
