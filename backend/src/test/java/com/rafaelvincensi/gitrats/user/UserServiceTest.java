@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -156,4 +157,20 @@ public class UserServiceTest {
         assertEquals("User not found!", exception.getMessage());
         verify(userRepository, times(1)).findByUsername(username);
     }
+
+    @Test
+    @DisplayName("Should find user by githubId successfully")
+    void shouldFindUserByGithubIdSuccessfully(){
+        User user = new User();
+        user.setGithubId("583231");
+
+        when(userRepository.findByGithubId(user.getGithubId())).thenReturn(Optional.of(user));
+
+        User foundUser = userService.findByGithubId(user.getGithubId());
+
+        assertNotNull(foundUser);
+        assertEquals("583231", foundUser.getGithubId());
+        verify(userRepository, times(1)).findByGithubId(user.getGithubId());
+    }
+
 }
