@@ -2,6 +2,7 @@ package com.rafaelvincensi.gitrats.user;
 
 import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
 import com.rafaelvincensi.gitrats.exception.ConflictException;
+import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -108,4 +109,20 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findById(userId);
     }
 
+    @Test
+    @DisplayName("Should throw NotFoundException when user id not found")
+    void shouldThrowNotFoundExceptionWhenUserNotFound(){
+        UUID userId = UUID.randomUUID();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> userService.findById(userId)
+        );
+
+        assertEquals("User not found!", exception.getMessage());
+
+        verify(userRepository, times(1)).findById(userId);
+    }
 }
