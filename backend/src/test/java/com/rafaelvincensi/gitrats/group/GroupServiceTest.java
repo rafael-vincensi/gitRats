@@ -205,8 +205,31 @@ public class GroupServiceTest {
 
         verify(groupRepository, times(1)).findById(group.getId());
         verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER);
-        verify(uploadService, times(1)).uploadFile(any(byte[].class), "groups");
+        verify(uploadService, times(1)).uploadFile(any(byte[].class), eq("groups"));
         verify(groupRepository, times(1)).save(any(Group.class));
+    }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when group not found to update")
+    void shouldThrowNotFoundExceptionWhenGroupNotFoundToUpdate(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+
+        UpdateGroupDTO request = new UpdateGroupDTO("ye", "ye");
+
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> groupService.updateGroup(group.getId(), user, request, null)
+        );
+
+        assertEquals("Group not found!", exception.getMessage());
+
+        verify(groupRepository, times(1)).findById(group.getId());
     }
 
 }
