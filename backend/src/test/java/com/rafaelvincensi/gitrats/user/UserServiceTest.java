@@ -2,15 +2,18 @@ package com.rafaelvincensi.gitrats.user;
 
 import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
 import com.rafaelvincensi.gitrats.exception.ConflictException;
+import com.rafaelvincensi.gitrats.exception.FileUploadException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MediaType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.swing.text.html.Option;
@@ -274,5 +277,38 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findById(userId);
     }
 
+    @Test
+    @DisplayName("Should update user profile with avatar successfully")
+    void shouldUpdateUserProfileWithAvatarSuccessfully(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setUsername("rafinhagoat");
 
+        UpdateProfileRequestDTO request = new UpdateProfileRequestDTO(
+                null,
+                "rafaeu",
+                "cs",
+                null
+        );
+
+        MockMultipartFile avatar = new MockMultipartFile(
+                "avatar",
+                "avatar.jpg",
+                "image/jpg",
+                "fake-image-bytes".getBytes());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(uploadService.uploadFile(any(byte[].class), eq("avatars"))).thenReturn("https://cloudinary.com/image.jpg");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User updatedUser = userService.updateProfileUser(user.getId(), request, avatar);
+
+        assertNotNull(updatedUser);
+        assertEquals("https://cloudinary.com/image.jpg", updatedUser.getAvatarUrl());
+        assertNotNull(updatedUser.getUpdatedAt());
+
+        verify(userRepository, times(1)).findById(user.getId());
+        verify(uploadService, times(1)).uploadFile(any(byte[].class), eq("avatars"));
+        verify(userRepository, times(1)).save(any(User.class));
+    }
 }
