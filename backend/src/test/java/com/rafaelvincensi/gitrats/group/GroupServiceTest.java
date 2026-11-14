@@ -2,6 +2,7 @@ package com.rafaelvincensi.gitrats.group;
 
 import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
 import com.rafaelvincensi.gitrats.exception.ConflictException;
+import com.rafaelvincensi.gitrats.exception.GroupMaxCapacityException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.user.User;
@@ -120,7 +121,7 @@ public class GroupServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw ConflictExceptionm when user already is a group member")
+    @DisplayName("Should throw ConflictException when user already is a group member")
     void shouldThrowConflictExceptionWhenUserAlreadyIsAGroupMember(){
         User user = new User();
         user.setId(UUID.randomUUID());
@@ -141,6 +142,32 @@ public class GroupServiceTest {
 
         verify(groupRepository, times(1)).findByCode("ABC123");
         verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserId(group.getId(), user.getId());
+    }
+
+    @Test
+    @DisplayName("Should throw GroupMaxCapacityException when group has 20 members")
+    void shouldThrowGroupMaxCapacityExceptionWhenGroupIsFull(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+        group.setCode("ABC123");
+
+        when(groupRepository.findByCode("ABC123")).thenReturn(Optional.of(group));
+        when(groupMembershipRepository.existsByGroupIdAndUserId(group.getId(), user.getId())).thenReturn(false);
+        when(groupMembershipRepository.countByGroupId(group.getId())).thenReturn(20L);
+
+        GroupMaxCapacityException exception = assertThrows(
+                GroupMaxCapacityException.class,
+                () -> groupService.joinGroup("ABC123", user)
+        );
+
+        assertEquals("Group already has 20 members!", exception.getMessage());
+
+        verify(groupRepository, times(1)).findByCode("ABC123");
+        verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserId(group.getId(), user.getId());
+        verify(groupMembershipRepository, times(1)).countByGroupId(group.getId());
     }
 
 }
