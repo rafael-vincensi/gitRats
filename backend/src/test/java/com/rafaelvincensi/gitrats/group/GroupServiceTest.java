@@ -5,6 +5,7 @@ import com.rafaelvincensi.gitrats.exception.ConflictException;
 import com.rafaelvincensi.gitrats.exception.GroupMaxCapacityException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
+import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 
+import javax.swing.*;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -168,6 +171,42 @@ public class GroupServiceTest {
         verify(groupRepository, times(1)).findByCode("ABC123");
         verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserId(group.getId(), user.getId());
         verify(groupMembershipRepository, times(1)).countByGroupId(group.getId());
+    }
+
+    @Test
+    @DisplayName("Should update group successfully")
+    void shouldUpdateGroupSuccessfully(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+
+        UpdateGroupDTO request = new UpdateGroupDTO("codas fofos", "so pra gurizada do python");
+
+        MockMultipartFile file = new MockMultipartFile(
+                "group-image",
+                "groupimage.jpg",
+                "image/jpg",
+                "fake-image-bytes".getBytes());
+
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        when(groupMembershipRepository.existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER)).thenReturn(true);
+        when(groupRepository.save(any(Group.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(uploadService.uploadFile(any(byte[].class), eq("groups"))).thenReturn("https://cloudinary.com/image.jpg");
+
+
+        Group updatedGroup = groupService.updateGroup(group.getId(), user, request, file);
+
+        assertNotNull(updatedGroup);
+        assertEquals("codas fofos", updatedGroup.getName());
+        assertEquals("so pra gurizada do python", group.getDescription());
+        assertEquals("https://cloudinary.com/image.jpg", group.getAvatarUrl());
+
+        verify(groupRepository, times(1)).findById(group.getId());
+        verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER);
+        verify(uploadService, times(1)).uploadFile(any(byte[].class), "groups");
+        verify(groupRepository, times(1)).save(any(Group.class));
     }
 
 }
