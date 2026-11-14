@@ -8,7 +8,5 @@ public record UpdateGroupDTO(
         String name,
 
         @Size(max = 80, message = "Description cannot exceed 80 characters")
-        String description,
-        String avatarUrl
-) {
-}
+        String description
+) {}
