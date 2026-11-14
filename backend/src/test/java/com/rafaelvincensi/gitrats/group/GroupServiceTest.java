@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,6 +60,37 @@ public class GroupServiceTest {
         assertNotNull(createdGroup.getCreatedAt());
 
         verify(groupRepository, times(1)).save(any(Group.class));
+        verify(groupMembershipRepository, times(1)).save(any(GroupMembership.class));
+    }
+
+    @Test
+    @DisplayName("Should join in group successfully")
+    void shouldJoinGroupSuccessfully(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+        group.setCode("ABC123");
+
+        when(groupRepository.findByCode("ABC123")).thenReturn(Optional.of(group));
+        when(groupMembershipRepository.existsByGroupIdAndUserId(group.getId(), user.getId())).thenReturn(false);
+        when(groupMembershipRepository.countByGroupId(group.getId())).thenReturn(5L);
+        when(groupMembershipRepository.save(any(GroupMembership.class))).thenAnswer(
+                invocation -> invocation.getArgument(0));
+
+        GroupMembership joinGroup = groupService.joinGroup("ABC123", user);
+
+        assertNotNull(joinGroup);
+        assertEquals(group, joinGroup.getGroup());
+        assertEquals(user, joinGroup.getUser());
+        assertEquals(GroupRole.MEMBER, joinGroup.getRole());
+        assertEquals("ABC123", group.getCode());
+        assertNotNull(joinGroup.getJoinedAt());
+
+        verify(groupRepository, times(1)).findByCode("ABC123");
+        verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserId(group.getId(), user.getId());
+        verify(groupMembershipRepository, times(1)).countByGroupId(group.getId());
         verify(groupMembershipRepository, times(1)).save(any(GroupMembership.class));
     }
 }
