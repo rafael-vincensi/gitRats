@@ -1,6 +1,7 @@
 package com.rafaelvincensi.gitrats.group;
 
 import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
+import com.rafaelvincensi.gitrats.exception.ConflictException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.user.User;
@@ -117,4 +118,29 @@ public class GroupServiceTest {
         verify(groupRepository, times(1)).findByCode("ABC123");
         verify(groupMembershipRepository, never()).save(any(GroupMembership.class));
     }
+
+    @Test
+    @DisplayName("Should throw ConflictExceptionm when user already is a group member")
+    void shouldThrowConflictExceptionWhenUserAlreadyIsAGroupMember(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+        group.setCode("ABC123");
+
+        when(groupRepository.findByCode("ABC123")).thenReturn(Optional.of(group));
+        when(groupMembershipRepository.existsByGroupIdAndUserId(group.getId(), user.getId())).thenReturn(true);
+
+        ConflictException exception = assertThrows(
+                ConflictException.class,
+                () -> groupService.joinGroup("ABC123", user)
+        );
+
+        assertEquals("You already a member of this group!", exception.getMessage());
+
+        verify(groupRepository, times(1)).findByCode("ABC123");
+        verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserId(group.getId(), user.getId());
+    }
+
 }
