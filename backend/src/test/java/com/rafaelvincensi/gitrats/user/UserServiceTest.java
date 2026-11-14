@@ -15,8 +15,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.text.html.Option;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -310,5 +312,33 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findById(user.getId());
         verify(uploadService, times(1)).uploadFile(any(byte[].class), eq("avatars"));
         verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw FileUploadException when IOException occurs reading file bytes")
+    void shouldThrowFileUploadExceptionWhenIOExceptionOccurs() throws Exception {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        UpdateProfileRequestDTO request = new UpdateProfileRequestDTO(
+                null,
+                null,
+                "feliciathegoat",
+                null);
+
+        MultipartFile fileMock = mock(MultipartFile.class);
+        when(fileMock.isEmpty()).thenReturn(false);
+        when(fileMock.getBytes()).thenThrow(new IOException("Disk read error"));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        FileUploadException exception = assertThrows(
+                FileUploadException.class,
+                () -> userService.updateProfileUser(user.getId(), request, fileMock)
+        );
+
+        assertEquals("Failed to read image bytes: Disk read error", exception.getMessage());
+        verify(userRepository, times(1)).findById(user.getId());
+        verify(fileMock, times(1)).getBytes();
+        verifyNoInteractions(uploadService);
     }
 }
