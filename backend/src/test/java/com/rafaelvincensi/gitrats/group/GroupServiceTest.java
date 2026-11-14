@@ -1,6 +1,7 @@
 package com.rafaelvincensi.gitrats.group;
 
 import com.rafaelvincensi.gitrats.config.cloudinary.UploadService;
+import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import org.junit.jupiter.api.DisplayName;
@@ -92,5 +93,28 @@ public class GroupServiceTest {
         verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserId(group.getId(), user.getId());
         verify(groupMembershipRepository, times(1)).countByGroupId(group.getId());
         verify(groupMembershipRepository, times(1)).save(any(GroupMembership.class));
+    }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when group not found")
+    void shouldThrowNotFoundExceptionWhenGroupNotFound(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+        group.setCode("ABC123");
+
+        when(groupRepository.findByCode("ABC123")).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> groupService.joinGroup("ABC123", user)
+        );
+
+        assertEquals("Group not found!", exception.getMessage());
+
+        verify(groupRepository, times(1)).findByCode("ABC123");
+        verify(groupMembershipRepository, never()).save(any(GroupMembership.class));
     }
 }
