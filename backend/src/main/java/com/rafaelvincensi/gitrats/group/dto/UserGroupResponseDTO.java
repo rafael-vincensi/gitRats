@@ -9,7 +9,6 @@ public record UserGroupResponseDTO(
         UUID id,
         String name,
         String code,
-        String avatarUrl,
         GroupRole role,
         Long memberCount
 ){
@@ -18,7 +17,6 @@ public record UserGroupResponseDTO(
                 membership.getGroup().getId(),
                 membership.getGroup().getName(),
                 membership.getGroup().getCode(),
-                membership.getGroup().getAvatarUrl(),
                 membership.getRole(),
                 memberCount
         );
