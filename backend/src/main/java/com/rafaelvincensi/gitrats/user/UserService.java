@@ -79,7 +79,7 @@ public class UserService {
             userRepository.findByUsername(request.username())
                     .ifPresent(existingUser -> {
                         if (!user.getId().equals(existingUser.getId())) {
-                            throw new ConflictException("User already exists!");
+                            throw new ConflictException("Username already exists!");
                         }
                     });
             user.setUsername(request.username());

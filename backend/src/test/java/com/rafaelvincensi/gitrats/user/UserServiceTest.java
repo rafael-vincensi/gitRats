@@ -80,6 +80,7 @@ public class UserServiceTest {
     @DisplayName("Should throw ConflictException when email already exists")
     void shouldThrowConflictExceptionWhenEmailAlreadyExists(){
         CreateUserRequestDTO request = new CreateUserRequestDTO("rafinhagoat", "rafael", "rafael@gmail.com", "rafinhagoatsenha");
+
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(new User()));
 
         ConflictException exception = assertThrows(
@@ -89,6 +90,7 @@ public class UserServiceTest {
 
         assertEquals("Email already exists!", exception.getMessage());
 
+        verify(userRepository, times(1)).findByEmail(request.email());
         verify(userRepository, never()).save(any());
     }
 
@@ -221,6 +223,36 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findById(userId);
         verify(userRepository, times(1)).findByUsername(request.username());
         verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw ConflictException when username already exists")
+    void shouldThrowConflictExceptionAlreadyExists(){
+        User existingUser = new User();
+        existingUser.setId(UUID.randomUUID());
+        existingUser.setUsername("rafinhagoat");
+
+        User otherUser = new User();
+        otherUser.setId(UUID.randomUUID());
+        otherUser.setUsername("ye");
+
+        UpdateProfileRequestDTO request = new UpdateProfileRequestDTO(
+                "ye",
+                "rafinha GOAT",
+                "im CEO bitch",
+                null);
+
+        when(userRepository.findById(existingUser.getId())).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUsername(otherUser.getUsername())).thenReturn(Optional.of(otherUser));
+
+        ConflictException exception = assertThrows(
+                ConflictException.class,
+                () -> userService.updateProfileUser(existingUser.getId(), request, null)
+        );
+
+        assertEquals("Username already exists!", exception.getMessage());
+        verify(userRepository, times(1)).findById(existingUser.getId());
+        verify(userRepository, times(1)).findByUsername("ye");
     }
 
 }
