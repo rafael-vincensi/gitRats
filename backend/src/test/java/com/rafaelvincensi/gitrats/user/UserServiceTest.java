@@ -7,7 +7,6 @@ import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.user.dto.CreateUserRequestDTO;
 import com.rafaelvincensi.gitrats.user.dto.UpdateProfileRequestDTO;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MediaType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,12 +16,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -341,4 +340,35 @@ public class UserServiceTest {
         verify(fileMock, times(1)).getBytes();
         verifyNoInteractions(uploadService);
     }
+
+    @Test
+    @DisplayName("Should update user profile successfully when keeping the same username")
+    void shouldUpdateProfileSuccessfullyWhenKeepingSameUsername(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setUsername("rafinhagoat");
+
+        UpdateProfileRequestDTO request = new UpdateProfileRequestDTO(
+                "rafinhagoat",
+                "rafinha GOAT",
+                "white ferrari",
+                null);
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("rafinhagoat")).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User updatedUser = userService.updateProfileUser(user.getId(), request, null);
+
+        assertNotNull(updatedUser);
+        assertEquals("rafinhagoat", updatedUser.getUsername());
+        assertEquals("rafinha GOAT", updatedUser.getName());
+        assertEquals("white ferrari", updatedUser.getBio());
+        assertNotNull(updatedUser.getUpdatedAt());
+
+        verify(userRepository, times(1)).findById(user.getId());
+        verify(userRepository, times(1)).findByUsername("rafinhagoat");
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
 }
