@@ -255,4 +255,24 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findByUsername("ye");
     }
 
+    @Test
+    @DisplayName("Should throw NotFoundException when user not found")
+    void shouldThrowNotFoundExceptionWhenUpdateUserNotFound(){
+        UUID userId = UUID.randomUUID();
+
+        UpdateProfileRequestDTO request = new UpdateProfileRequestDTO(null, null, "bio user not found", null);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> userService.updateProfileUser(userId, request, null)
+        );
+
+        assertEquals("User not found!", exception.getMessage());
+
+        verify(userRepository, times(1)).findById(userId);
+    }
+
+
 }
