@@ -280,4 +280,24 @@ public class GroupServiceTest {
         verify(groupMembershipRepository, times(1)).findByGroupIdAndUserId(group.getId(), user.getId());
         verify(groupMembershipRepository, times(1)).delete(membership);
     }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when a user tries to leave a group they are not a member of")
+    void shouldThrowNotFoundExceptionWhenUserTriesToLeaveGroupTheyAreNotIn(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+
+        when(groupMembershipRepository.findByGroupIdAndUserId(group.getId(), user.getId())).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> groupService.exitGroup(user, group.getId())
+        );
+
+        assertEquals("You are not a member of this group!", exception.getMessage());
+        verify(groupMembershipRepository, times(1)).findByGroupIdAndUserId(group.getId(), user.getId());
+    }
 }
