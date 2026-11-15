@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.access.AccessDeniedException;
 
 import javax.swing.*;
 import java.util.Optional;
@@ -232,4 +233,28 @@ public class GroupServiceTest {
         verify(groupRepository, times(1)).findById(group.getId());
     }
 
+    @Test
+    @DisplayName("Should throw AccessDeniedException when user not is the founder to update")
+    void shouldThrowAccessDeniedExceptionWhenUserNotIsTheFounderToUpdate() {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+
+        UpdateGroupDTO request = new UpdateGroupDTO("name", "desc");
+
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        when(groupMembershipRepository.existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER)).thenReturn(false);
+
+        AccessDeniedException exception = assertThrows(
+                AccessDeniedException.class,
+                () -> groupService.updateGroup(group.getId(), user, request, null)
+        );
+
+        assertEquals("Only the group founder can perform this action!", exception.getMessage());
+
+        verify(groupRepository, times(1)).findById(group.getId());
+        verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER);
+    }
 }
