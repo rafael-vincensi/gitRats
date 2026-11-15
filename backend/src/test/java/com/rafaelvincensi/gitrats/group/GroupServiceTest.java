@@ -300,4 +300,30 @@ public class GroupServiceTest {
         assertEquals("You are not a member of this group!", exception.getMessage());
         verify(groupMembershipRepository, times(1)).findByGroupIdAndUserId(group.getId(), user.getId());
     }
+
+    @Test
+    @DisplayName("Should throw AccessDeniedException when a user tries to leave a group they are the founder")
+    void shouldThrowAccessDeniedExceptionWhenUserTriesToLeaveGroupTheyAreFounder(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+
+        GroupMembership membership = new GroupMembership();
+        membership.setUser(user);
+        membership.setGroup(group);
+        membership.setRole(GroupRole.FOUNDER);
+
+        when(groupMembershipRepository.findByGroupIdAndUserId(group.getId(), user.getId())).thenReturn(Optional.of(membership));
+
+        AccessDeniedException exception = assertThrows(
+                AccessDeniedException.class,
+                () -> groupService.exitGroup(user, group.getId())
+        );
+
+        assertEquals("The founder cannot exit the group! Delete group instead.", exception.getMessage());
+
+        verify(groupMembershipRepository, times(1)).findByGroupIdAndUserId(group.getId(), user.getId());
+    }
 }
