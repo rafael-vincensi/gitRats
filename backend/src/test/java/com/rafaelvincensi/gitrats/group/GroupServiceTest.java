@@ -242,7 +242,7 @@ public class GroupServiceTest {
         Group group = new Group();
         group.setId(UUID.randomUUID());
 
-        UpdateGroupDTO request = new UpdateGroupDTO("name", "desc");
+        UpdateGroupDTO request = new UpdateGroupDTO("ratificar cachorro peti bul", "e crianca");
 
         when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
         when(groupMembershipRepository.existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER)).thenReturn(false);
@@ -256,5 +256,28 @@ public class GroupServiceTest {
 
         verify(groupRepository, times(1)).findById(group.getId());
         verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER);
+    }
+
+    @Test
+    @DisplayName("Should exit group successfully")
+    void shouldExitGroupSuccessfully(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+
+        GroupMembership membership = new GroupMembership();
+        membership.setUser(user);
+        membership.setGroup(group);
+        membership.setRole(GroupRole.MEMBER);
+
+        when(groupMembershipRepository.findByGroupIdAndUserId(group.getId(), user.getId())).thenReturn(Optional.of(membership));
+
+        groupService.exitGroup(user, group.getId());
+
+        assertNotNull(group);
+        verify(groupMembershipRepository, times(1)).findByGroupIdAndUserId(group.getId(), user.getId());
+        verify(groupMembershipRepository, times(1)).delete(membership);
     }
 }
