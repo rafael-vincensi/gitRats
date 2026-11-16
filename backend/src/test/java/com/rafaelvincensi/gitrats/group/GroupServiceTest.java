@@ -426,4 +426,29 @@ public class GroupServiceTest {
         verify(groupMembershipRepository, times(1)).deleteByGroupId(group.getId());
         verify(groupRepository, times(1)).deleteById(group.getId());
     }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when group not found to delete")
+    void shouldThrowNotFoundExceptionWhenGroupNotFoundToDelete(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+
+        when(userService.findById(user.getId())).thenReturn(user);
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> groupService.deleteGroup(user.getId(), group.getId())
+        );
+
+        assertEquals("Group not found!", exception.getMessage());
+
+        verify(userService, times(1)).findById(user.getId());
+        verify(groupRepository, times(1)).findById(group.getId());
+        verify(groupRepository, never()).deleteById(any());
+        verify(groupMembershipRepository, never()).deleteByGroupId(any());
+    }
 }
