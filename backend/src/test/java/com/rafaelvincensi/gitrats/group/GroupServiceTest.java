@@ -8,6 +8,7 @@ import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
+import com.rafaelvincensi.gitrats.user.UserRepository;
 import com.rafaelvincensi.gitrats.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -450,5 +451,31 @@ public class GroupServiceTest {
         verify(groupRepository, times(1)).findById(group.getId());
         verify(groupRepository, never()).deleteById(any());
         verify(groupMembershipRepository, never()).deleteByGroupId(any());
+    }
+
+    @Test
+    @DisplayName("Should throw AccessDeniedException when user is not founder of group to delete")
+    void shouldThrowAccessDeniedExceptionWhenUserIsNotFounderToDeleteGroup(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+
+        when(userService.findById(user.getId())).thenReturn(user);
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        when(groupMembershipRepository.existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER)).thenReturn(false);
+
+        AccessDeniedException exception = assertThrows(
+                AccessDeniedException.class,
+                () -> groupService.deleteGroup(user.getId(), group.getId())
+        );
+
+        assertEquals("Only the Founder can delete the group!", exception.getMessage());
+        verify(userService, times(1)).findById(user.getId());
+        verify(groupRepository, times(1)).findById(group.getId());
+        verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER);
+        verify(groupRepository, never()).deleteById(any());
+        verify(groupMembershipRepository, never()).deleteByGroupId(group.getId());
     }
 }
