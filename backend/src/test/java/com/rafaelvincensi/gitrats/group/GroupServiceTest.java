@@ -8,6 +8,7 @@ import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
+import com.rafaelvincensi.gitrats.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +40,9 @@ public class GroupServiceTest {
 
     @Mock
     private UploadService uploadService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private GroupService groupService;
@@ -399,6 +403,27 @@ public class GroupServiceTest {
 
         verify(groupMembershipRepository, times(1)).findByUserId(user.getId());
         verify(groupMembershipRepository, never()).countByGroupId(any());
+    }
 
+    @Test
+    @DisplayName("Should delete group successfully")
+    void shouldDeleteGroupSuccessfully() {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+
+        when(userService.findById(user.getId())).thenReturn(user);
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        when(groupMembershipRepository.existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER)).thenReturn(true);
+
+        groupService.deleteGroup(user.getId(), group.getId());
+
+        verify(userService, times(1)).findById(user.getId());
+        verify(groupRepository, times(1)).findById(group.getId());
+        verify(groupMembershipRepository, times(1)).existsByGroupIdAndUserIdAndRole(group.getId(), user.getId(), GroupRole.FOUNDER);
+        verify(groupMembershipRepository, times(1)).deleteByGroupId(group.getId());
+        verify(groupRepository, times(1)).deleteById(group.getId());
     }
 }
