@@ -6,6 +6,7 @@ import com.rafaelvincensi.gitrats.exception.GroupMaxCapacityException;
 import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
+import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.swing.*;
+import javax.swing.text.html.Option;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -325,5 +328,59 @@ public class GroupServiceTest {
         assertEquals("The founder cannot exit the group! Delete group instead.", exception.getMessage());
 
         verify(groupMembershipRepository, times(1)).findByGroupIdAndUserId(group.getId(), user.getId());
+    }
+
+    @Test
+    @DisplayName("Should list groups successfully")
+    void shouldListGroupsSuccessfully() {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        Group groupOne = new Group();
+        groupOne.setId(UUID.randomUUID());
+        groupOne.setName("FE!N FE!N FE!N");
+        groupOne.setCode("FEIN01");
+
+        Group groupTwo = new Group();
+        groupTwo.setId(UUID.randomUUID());
+        groupTwo.setName("potato salad");
+        groupTwo.setCode("POTATO");
+
+        GroupMembership membershipOne = new GroupMembership();
+        membershipOne.setId(UUID.randomUUID());
+        membershipOne.setUser(user);
+        membershipOne.setGroup(groupOne);
+        membershipOne.setRole(GroupRole.FOUNDER);
+
+        GroupMembership membershipTwo = new GroupMembership();
+        membershipTwo.setId(UUID.randomUUID());
+        membershipTwo.setUser(user);
+        membershipTwo.setGroup(groupTwo);
+        membershipTwo.setRole(GroupRole.MEMBER);
+
+        when(groupMembershipRepository.findByUserId(user.getId())).thenReturn(List.of(membershipOne, membershipTwo));
+        when(groupMembershipRepository.countByGroupId(groupOne.getId())).thenReturn(5L);
+        when(groupMembershipRepository.countByGroupId(groupTwo.getId())).thenReturn(12L);
+
+        List<UserGroupResponseDTO> result = groupService.listMyGroups(user);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        assertEquals(groupOne.getId(), result.get(0).id());
+        assertEquals("FE!N FE!N FE!N", result.get(0).name());
+        assertEquals("FEIN01", result.get(0).code());
+        assertEquals(GroupRole.FOUNDER, result.get(0).role());
+        assertEquals(5L, result.get(0).memberCount());
+
+        assertEquals(groupTwo.getId(), result.get(1).id());
+        assertEquals("potato salad", result.get(1).name());
+        assertEquals("POTATO", result.get(1).code());
+        assertEquals(GroupRole.MEMBER, result.get(1).role());
+        assertEquals(12L, result.get(1).memberCount());
+
+        verify(groupMembershipRepository, times(1)).findByUserId(user.getId());
+        verify(groupMembershipRepository, times(1)).countByGroupId(groupOne.getId());
+        verify(groupMembershipRepository, times(1)).countByGroupId(groupTwo.getId());
     }
 }
