@@ -8,7 +8,6 @@ import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
-import com.rafaelvincensi.gitrats.user.UserRepository;
 import com.rafaelvincensi.gitrats.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.swing.*;
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
