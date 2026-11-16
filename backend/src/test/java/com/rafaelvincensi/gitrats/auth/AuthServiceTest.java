@@ -9,8 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.swing.*;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,5 +44,22 @@ public class AuthServiceTest {
         assertEquals("rafinhacracked", result.getUsername());
         assertEquals("rafinhacracked@gmail.com", ((User) result).getEmail());
         verify(userRepository, times(1)).findUserDetailsByEmail(user.getEmail());
+    }
+
+    @Test
+    @DisplayName("Should throw UsernameNotFoundException when user is not found")
+    void shouldThrowUsernameNotFoundExceptionWhenUserNotFound(){
+
+        String email = ("sirbaudelaire@gmail.com");
+
+        when(userRepository.findUserDetailsByEmail(email)).thenReturn(null);
+
+        UsernameNotFoundException exception = assertThrows(
+                UsernameNotFoundException.class,
+                () -> authService.loadUserByUsername(email)
+        );
+
+        assertEquals("User not found with email " + email, exception.getMessage());
+        verify(userRepository, times(1)).findUserDetailsByEmail(email);
     }
 }
