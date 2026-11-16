@@ -383,4 +383,22 @@ public class GroupServiceTest {
         verify(groupMembershipRepository, times(1)).countByGroupId(groupOne.getId());
         verify(groupMembershipRepository, times(1)).countByGroupId(groupTwo.getId());
     }
+
+    @Test
+    @DisplayName("Should return empty list when user has no groups")
+    void shouldReturnEmptyListWhenUserHasNoGroups(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        when(groupMembershipRepository.findByUserId(user.getId())).thenReturn(List.of());
+
+        List<UserGroupResponseDTO> result = groupService.listMyGroups(user);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(groupMembershipRepository, times(1)).findByUserId(user.getId());
+        verify(groupMembershipRepository, never()).countByGroupId(any());
+
+    }
 }
