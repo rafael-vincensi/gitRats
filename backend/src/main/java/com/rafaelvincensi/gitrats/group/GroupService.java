@@ -134,4 +134,20 @@ public class GroupService {
                 })
                 .toList();
     }
+
+    @Transactional
+    public void deleteGroup(UUID userId, UUID groupId){
+        var user = userService.findById(userId);
+        var group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Group not found!"));
+
+        boolean isFounder = groupMembershipRepository.existsByGroupIdAndUserIdAndRole(groupId, userId, GroupRole.FOUNDER);
+
+        if (!isFounder){
+            throw new AccessDeniedException("Only the Founder can delete the group!");
+        }
+
+        groupMembershipRepository.deleteByGroupId(groupId);
+        groupRepository.deleteById(groupId);
+    }
 }
