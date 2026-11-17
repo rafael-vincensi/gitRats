@@ -1,6 +1,5 @@
 package com.rafaelvincensi.gitrats.token;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.rafaelvincensi.gitrats.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
