@@ -31,4 +31,19 @@ class TokenServiceTest {
         assertFalse(token.isBlank());
         assertEquals(3, token.split("\\.").length);
     }
+
+    @Test
+    @DisplayName("Should validate token successfully")
+    void shouldValidateTokenSuccessfully(){
+        User user = new User();
+        user.setEmail("mrlonely@gmail.com");
+
+        String token = tokenService.generateToken(user);
+        String validateToken = tokenService.validateToken(token);
+
+        assertNotNull(token);
+        assertFalse(token.isBlank());
+        assertNotNull(validateToken);
+        assertEquals("mrlonely@gmail.com", validateToken);
+    }
 }
