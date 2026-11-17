@@ -55,4 +55,18 @@ class TokenServiceTest {
 
         assertEquals("", result);
     }
+
+    @Test
+    @DisplayName("Should return empty string when token is expired")
+    void shouldReturnEmptyStringWhenTokenIsExpired(){
+        ReflectionTestUtils.setField(tokenService, "expirationTime", -10000L);
+
+        User user = new User();
+        user.setEmail("feliciathegoat@gmail.com");
+
+        String token = tokenService.generateToken(user);
+        String result = tokenService.validateToken(token);
+
+        assertEquals("", result);
+    }
 }
