@@ -1,5 +1,6 @@
 package com.rafaelvincensi.gitrats.token;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.rafaelvincensi.gitrats.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,5 +46,13 @@ class TokenServiceTest {
         assertFalse(token.isBlank());
         assertNotNull(validateToken);
         assertEquals("mrlonely@gmail.com", validateToken);
+    }
+
+    @Test
+    @DisplayName("Should return empty string when token is invalid")
+    void shouldReturnEmptyStringWhenTokenIsInvalid(){
+        String result = tokenService.validateToken("token-invalido");
+
+        assertEquals("", result);
     }
 }
