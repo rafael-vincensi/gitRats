@@ -7,6 +7,8 @@ import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
+import com.rafaelvincensi.gitrats.rank.LeaderboardService;
+import com.rafaelvincensi.gitrats.rank.dto.GroupLeaderboardDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +44,9 @@ public class GroupServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private LeaderboardService leaderboardService;
 
     @InjectMocks
     private GroupService groupService;
@@ -364,6 +369,19 @@ public class GroupServiceTest {
         when(groupMembershipRepository.findByUserId(user.getId())).thenReturn(List.of(membershipOne, membershipTwo));
         when(groupMembershipRepository.countByGroupId(groupOne.getId())).thenReturn(5L);
         when(groupMembershipRepository.countByGroupId(groupTwo.getId())).thenReturn(12L);
+        when(leaderboardService.getGroupCheckInLeaderboard(groupOne.getId())).thenReturn(List.of(
+                new GroupLeaderboardDTO(UUID.randomUUID(), "Steve Lacy", "uuuu", null, 5L),
+                new GroupLeaderboardDTO(UUID.randomUUID(), "Frank Ocean", "blonded", null, 14L)
+        ));
+        when(leaderboardService.getGroupCommitLeaderboard(groupOne.getId())).thenReturn(List.of(
+                new GroupLeaderboardDTO(UUID.randomUUID(), "ALLRED", "allred", null, 42L),
+                new GroupLeaderboardDTO(UUID.randomUUID(), "Petal", "petal", null, 31L)
+        ));
+        when(leaderboardService.getGroupCheckInLeaderboard(groupTwo.getId())).thenReturn(List.of(
+                new GroupLeaderboardDTO(UUID.randomUUID(), "BULLY", "ye", null, 9L),
+                new GroupLeaderboardDTO(UUID.randomUUID(), "BOY IS A GUN", "igor", null, 3L)
+        ));
+        when(leaderboardService.getGroupCommitLeaderboard(groupTwo.getId())).thenReturn(List.of());
 
         List<UserGroupResponseDTO> result = groupService.listMyGroups(user);
 
@@ -375,16 +393,24 @@ public class GroupServiceTest {
         assertEquals("FEIN01", result.get(0).code());
         assertEquals(GroupRole.FOUNDER, result.get(0).role());
         assertEquals(5L, result.get(0).memberCount());
+        assertEquals(19L, result.get(0).totalCheckIns());
+        assertEquals(73L, result.get(0).totalCommits());
 
         assertEquals(groupTwo.getId(), result.get(1).id());
         assertEquals("potato salad", result.get(1).name());
         assertEquals("POTATO", result.get(1).code());
         assertEquals(GroupRole.MEMBER, result.get(1).role());
         assertEquals(12L, result.get(1).memberCount());
+        assertEquals(12L, result.get(1).totalCheckIns());
+        assertEquals(0L, result.get(1).totalCommits());
 
         verify(groupMembershipRepository, times(1)).findByUserId(user.getId());
         verify(groupMembershipRepository, times(1)).countByGroupId(groupOne.getId());
         verify(groupMembershipRepository, times(1)).countByGroupId(groupTwo.getId());
+        verify(leaderboardService, times(1)).getGroupCheckInLeaderboard(groupOne.getId());
+        verify(leaderboardService, times(1)).getGroupCommitLeaderboard(groupOne.getId());
+        verify(leaderboardService, times(1)).getGroupCheckInLeaderboard(groupTwo.getId());
+        verify(leaderboardService, times(1)).getGroupCommitLeaderboard(groupTwo.getId());
     }
 
     @Test
