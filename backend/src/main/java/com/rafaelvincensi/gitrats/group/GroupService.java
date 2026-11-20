@@ -8,6 +8,8 @@ import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.group.dto.CreateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UpdateGroupDTO;
 import com.rafaelvincensi.gitrats.group.dto.UserGroupResponseDTO;
+import com.rafaelvincensi.gitrats.rank.LeaderboardService;
+import com.rafaelvincensi.gitrats.rank.dto.GroupLeaderboardDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserService;
 import jakarta.transaction.Transactional;
@@ -20,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-
 @Service
 public class GroupService {
 
@@ -28,12 +29,14 @@ public class GroupService {
     private final GroupMembershipRepository groupMembershipRepository;
     private final UserService userService;
     private final UploadService uploadService;
+    private final LeaderboardService leaderboardService;
 
-    public GroupService(GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository, UserService userService, UploadService uploadService) {
+    public GroupService(GroupRepository groupRepository, GroupMembershipRepository groupMembershipRepository, UserService userService, UploadService uploadService, LeaderboardService leaderboardService) {
         this.groupRepository = groupRepository;
         this.groupMembershipRepository = groupMembershipRepository;
         this.userService = userService;
         this.uploadService = uploadService;
+        this.leaderboardService = leaderboardService;
     }
 
     @Transactional
@@ -128,9 +131,18 @@ public class GroupService {
 
         return memberships.stream()
                 .map(membership -> {
-                    Long totalMembers = groupMembershipRepository.countByGroupId(membership.getGroup().getId());
+                    UUID groupId = membership.getGroup().getId();
+                    Long totalMembers = groupMembershipRepository.countByGroupId(groupId);
 
-                    return UserGroupResponseDTO.fromEntity(membership, totalMembers);
+                    long totalCheckIns = leaderboardService.getGroupCheckInLeaderboard(groupId).stream()
+                            .mapToLong(GroupLeaderboardDTO::score)
+                            .sum();
+
+                    long totalCommits = leaderboardService.getGroupCommitLeaderboard(groupId).stream()
+                            .mapToLong(GroupLeaderboardDTO::score)
+                            .sum();
+
+                    return UserGroupResponseDTO.fromEntity(membership, totalMembers, totalCheckIns, totalCommits);
                 })
                 .toList();
     }
