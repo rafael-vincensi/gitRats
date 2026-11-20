@@ -7,6 +7,7 @@ import com.rafaelvincensi.gitrats.github.dto.GithubUserResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -68,7 +69,16 @@ public class GithubService {
         return userRepository.save(user);
     }
 
+    @Cacheable(
+            value = "weeklyCommits",
+            key = "#githubUsername",
+            condition = "#githubUsername != null && !#githubUsername.isBlank() && #accessToken != null && !#accessToken.isBlank()",
+            unless = "#result == 0")
     public Integer getWeeklyCommits(String githubUsername, String accessToken){
+        if (githubUsername == null || githubUsername.isBlank() || accessToken == null || accessToken.isBlank() ){
+            return 0;
+        }
+
         LocalDate today = LocalDate.now();
         LocalDate pastWeek = today.minusDays(7);
 
