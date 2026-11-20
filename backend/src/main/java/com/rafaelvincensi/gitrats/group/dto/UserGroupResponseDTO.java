@@ -10,15 +10,19 @@ public record UserGroupResponseDTO(
         String name,
         String code,
         GroupRole role,
-        Long memberCount
+        Long memberCount,
+        long totalCheckIns,
+        long totalCommits
 ){
-    public static UserGroupResponseDTO fromEntity(GroupMembership membership, Long memberCount){
+    public static UserGroupResponseDTO fromEntity(GroupMembership membership, Long memberCount, Long totalCheckIns, Long totalCommits){
         return new UserGroupResponseDTO(
                 membership.getGroup().getId(),
                 membership.getGroup().getName(),
                 membership.getGroup().getCode(),
                 membership.getRole(),
-                memberCount
+                memberCount,
+                totalCheckIns,
+                totalCommits
         );
     }
 }

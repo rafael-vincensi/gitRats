@@ -8,5 +8,4 @@ public record GroupLeaderboardDTO(
         String username,
         String avatarUrl,
         long score
-) {
-}
+){}
