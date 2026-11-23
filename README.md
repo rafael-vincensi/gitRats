@@ -10,6 +10,7 @@
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.x-brightgreen?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com/)
+[![Caffeine](https://img.shields.io/badge/Caffeine-6F4E37?style=for-the-badge)](https://github.com/ben-manes/caffeine)
 [![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
 [![GitHub OAuth](https://img.shields.io/badge/GitHub_OAuth-181717?style=for-the-badge&logo=github&logoColor=white)](https://docs.github.com/en/apps/oauth-apps)
 [![JUnit 5](https://img.shields.io/badge/JUnit_5-25A162?style=for-the-badge&logo=junit5&logoColor=white)](https://junit.org/junit5/)
@@ -30,13 +31,15 @@
 
 - Global daily check-in streak tracking across the platform
 
-- Weekly internal group rankings for total check-ins and GitHub commits
+- Weekly internal group rankings and aggregated group totals for check-ins and GitHub commits
+
+- In-memory caching with Caffeine to optimize GitHub API commit lookups and avoid rate limits
 
 - Unit test suite built with JUnit 5 and Mockito
 
 ## Architecture
 
-The application is a REST API organized into controllers, services, repositories, DTOs, and a global exception handler (`@ControllerAdvice`) that returns standardized error payloads (`status`, `message`, and `timestamp`). Images are uploaded to Cloudinary via `multipart/form-data`, while the database stores check-in metadata, image references, global streaks, and group leaderboard data.
+The application is a REST API organized into controllers, services, repositories, DTOs, and a global exception handler (`@ControllerAdvice`) that returns standardized error payloads (`status`, `message`, and `timestamp`). Images are uploaded to Cloudinary via `multipart/form-data`, while the database stores check-in metadata, image references, global streaks, and group membership data. Weekly GitHub commit counts are cached in memory via Caffeine (`10m` TTL) to keep group aggregation fast and prevent external API rate-limit bottlenecks.
 
 ## API Endpoints
 
@@ -64,7 +67,7 @@ The application is a REST API organized into controllers, services, repositories
 | Method | Route | Description |
 |--------|-------|-------------|
 | `POST` | `/groups` | Create a new group |
-| `GET` | `/groups` | List all groups the authenticated user belongs to (with weekly check-in & commit rankings) |
+| `GET` | `/groups` | List all groups the authenticated user belongs to (including member count, total weekly check-ins, and total weekly commits) |
 | `POST` | `/groups/{code}/join` | Join an existing group using its invite code (max 20 members) |
 | `PATCH` | `/groups/{groupId}` | Update group details and optional cover image (`multipart/form-data`) |
 | `DELETE` | `/groups/{groupId}/exit` | Leave a group |
@@ -140,6 +143,9 @@ github.redirect.url=${GITHUB_REDIRECT_URL}
 cloudinary.cloud-name=${CLOUDINARY_NAME}
 cloudinary.api-key=${CLOUDINARY_KEY}
 cloudinary.api-secret=${CLOUDINARY_SECRET}
+
+spring.cache.cache-names=weeklyCommits
+spring.cache.caffeine.spec=maximumSize=500,expireAfterWrite=10m
 ```
 
 ### Run the Application
