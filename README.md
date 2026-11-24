@@ -1,6 +1,6 @@
 # gitRats
 
-> gitRats is a social accountability and gamified check-in backend for developers. Users can create or join groups of up to 20 members, publish photo-verified coding check-ins, build a global daily streak, and compete on weekly group leaderboards for check-ins and GitHub commits. Images are stored in Cloudinary, and the API is secured with JWT and GitHub OAuth.
+> gitRats is a social accountability and gamified check-in platform for developers, consisting of a Spring Boot REST API and an official [Go CLI client](https://github.com/rafael-vincensi/gitrats-cli). Users can create or join groups of up to 20 members, publish photo-verified coding check-ins directly from their terminal or via API, build a global daily streak, and compete on weekly group leaderboards for check-ins and GitHub commits. Images are stored in Cloudinary, and the API is secured with JWT and GitHub OAuth.
 
 ## Tech Stack
 
@@ -9,6 +9,7 @@
 [![Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.x-brightgreen?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Go](https://img.shields.io/badge/Go_(CLI)-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://github.com/rafael-vincensi/gitrats-cli)
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com/)
 [![Caffeine](https://img.shields.io/badge/Caffeine-6F4E37?style=for-the-badge)](https://github.com/ben-manes/caffeine)
 [![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
@@ -17,29 +18,61 @@
 
 </div>
 
+## Ecosystem
+
+| Component | Repository | Stack | Description |
+|-----------|------------|-------|-------------|
+| **Backend API** | This repository | Java 21, Spring Boot, PostgreSQL | Core REST API, authentication, streak tracking, GitHub commit aggregation, and Cloudinary uploads |
+| **CLI Client** | [rafael-vincensi/gitrats-cli](https://github.com/rafael-vincensi/gitrats-cli) | Go, Cobra | Terminal client to register, authenticate, join groups, view stats, and submit photo check-ins |
+
 ## Features
 
 - User registration, profile management, and GitHub account linking
-
-- JWT-based authentication and GitHub OAuth login
-
+- JWT-based authentication and GitHub OAuth login (supported via API and CLI)
 - Create and join groups via invite code (capped at 20 members per group)
-
 - Publish check-ins with a mandatory image upload, title, and activity description
-
 - Check-in, group, and profile images stored in Cloudinary
-
 - Global daily check-in streak tracking across the platform
-
 - Weekly internal group rankings and aggregated group totals for check-ins and GitHub commits
-
 - In-memory caching with Caffeine to optimize GitHub API commit lookups and avoid rate limits
-
+- Official terminal workflow via `gitrats-cli` with local token persistence
 - Unit test suite built with JUnit 5 and Mockito
+
+## Official CLI (`gitrats-cli`)
+
+Interact with the gitRats API straight from your terminal using **[gitrats-cli](https://github.com/rafael-vincensi/gitrats-cli)** (built with Go and Cobra):
+
+### Available Commands
+
+| Command | Flags / Arguments | Description |
+|---------|-------------------|-------------|
+| `gitrats register` | `-e, --email` (req), `-p, --password` (req), `-u, --username`, `-n, --name` | Create a new gitRats account |
+| `gitrats login` | `-e, --email`, `-p, --password` \| `--github`, `--client-id` | Authenticate via email/password or GitHub OAuth and save session locally |
+| `gitrats me` | — | Display profile info, current/highest streak, total check-ins, and weekly GitHub commits |
+| `gitrats groups` | — | List all groups you belong to along with invite codes, check-ins, and weekly commits |
+| `gitrats groups join` | `[invite-code]` | Join an existing group using its invite code |
+| `gitrats checkin` | `-g, --group` (req), `-t, --title` (req), `-i, --image` (req), `-d, --description` | Submit a new photo-verified check-in to a group using its invite code |
+
+### Quick CLI Example
+
+```bash
+# Authenticate (email/password or GitHub OAuth)
+gitrats login -e dev@example.com -p secret
+gitrats login --github --client-id <github-client-id>
+
+# Join a group and check your stats
+gitrats groups join ABC123
+gitrats me
+
+# Publish a check-in from the terminal
+gitrats checkin -g ABC123 -t "GO" -d "CLI em GO pra o gitrats!!!" -i ./screenshot.png
+```
+
+> See the [gitrats-cli repository](https://github.com/rafael-vincensi/gitrats-cli) for installation and build instructions.
 
 ## Architecture
 
-The application is a REST API organized into controllers, services, repositories, DTOs, and a global exception handler (`@ControllerAdvice`) that returns standardized error payloads (`status`, `message`, and `timestamp`). Images are uploaded to Cloudinary via `multipart/form-data`, while the database stores check-in metadata, image references, global streaks, and group membership data. Weekly GitHub commit counts are cached in memory via Caffeine (`10m` TTL) to keep group aggregation fast and prevent external API rate-limit bottlenecks.
+The backend is a REST API organized into controllers, services, repositories, DTOs, and a global exception handler (`@ControllerAdvice`) that returns standardized error payloads (`status`, `message`, and `timestamp`). Images are uploaded to Cloudinary via `multipart/form-data`, while the database stores check-in metadata, image references, global streaks, and group membership data. Weekly GitHub commit counts are cached in memory via Caffeine (`10m` TTL) to keep group aggregation fast and prevent external API rate-limit bottlenecks.
 
 ## API Endpoints
 
@@ -83,7 +116,7 @@ The application is a REST API organized into controllers, services, repositories
 
 ## Authentication
 
-Log in through `POST /auth/login` or `GET /auth/callback/github` to receive a JWT. Send it in the `Authorization` header on protected requests:
+Log in through `POST /auth/login`, `GET /auth/callback/github`, or `gitrats login` to receive a JWT. Send it in the `Authorization` header on protected requests:
 
 ```http
 Authorization: Bearer <token>
@@ -96,13 +129,9 @@ Tokens expire after 1 hour by default (`jwt.expiration=3600000`).
 ### Prerequisites
 
 - Java 21
-
 - Maven (or the included `./mvnw` wrapper)
-
 - PostgreSQL
-
 - A Cloudinary account with API credentials
-
 - A GitHub OAuth App (Client ID, Client Secret, and Redirect URL)
 
 ### Environment Variables
