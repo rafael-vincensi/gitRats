@@ -76,7 +76,7 @@
 
         @Override
         public @Nullable String getPassword() {
-            return "";
+            return this.passwordHash;
         }
 
         @Override
