@@ -2,9 +2,11 @@ package com.rafaelvincensi.gitrats.auth;
 
 import com.rafaelvincensi.gitrats.auth.dto.LoginRequestDTO;
 import com.rafaelvincensi.gitrats.github.GithubService;
+import com.rafaelvincensi.gitrats.token.Token;
 import com.rafaelvincensi.gitrats.token.TokenService;
 import com.rafaelvincensi.gitrats.user.User;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,4 +47,18 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("token", jwtToken));
     }
-}
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+        String requestRefreshToken = request.get("refreshToken");
+
+        if (requestRefreshToken == null || requestRefreshToken.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Refresh token is required!"));
+        }
+            Token refreshToken = tokenService.verifyRefreshToken(requestRefreshToken);
+            String newAccessToken = tokenService.generateToken(refreshToken.getUser());
+
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken, "refreshToken", refreshToken.getToken()));
+        }
+    }
+
