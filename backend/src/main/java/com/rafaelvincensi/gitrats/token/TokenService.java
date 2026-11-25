@@ -78,9 +78,14 @@ public class TokenService {
 
         if (refreshToken.getExpiryDate().isBefore(Instant.now())){
             tokenRepository.delete(refreshToken);
-            throw new ExpiredJwtException("Refresh token expired. Please log in again.");
+            throw new ExpiredJwtException("Refresh token expired! Please log in again.");
         }
         return refreshToken;
+    }
+
+    @Transactional
+    public void deleteByUser(User user){
+        tokenRepository.deleteByUser(user);
     }
 
 }
