@@ -4,11 +4,15 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.rafaelvincensi.gitrats.exception.ExpiredJwtException;
+import com.rafaelvincensi.gitrats.exception.NotFoundException;
 import com.rafaelvincensi.gitrats.user.User;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Component
 public class TokenService {
@@ -18,6 +22,14 @@ public class TokenService {
 
     @Value("${jwt.expiration}")
     private Long expirationTime;
+
+    @Value("${jwt.refresh.expiration}")
+    private Long refreshExpirationTime;
+    private final TokenRepository tokenRepository;
+
+    public TokenService(TokenRepository tokenRepository) {
+        this.tokenRepository = tokenRepository;
+    }
 
     public String generateToken(User user) {
         try {
@@ -46,4 +58,17 @@ public class TokenService {
             return "";
         }
     }
+
+    @Transactional
+    public Token createRefreshToken(User user) {
+        Token refreshToken = tokenRepository.findByUser(user)
+                .orElse(new Token());
+
+        refreshToken.setUser(user);
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshExpirationTime));
+
+        return tokenRepository.save(refreshToken);
+    }
+
 }
