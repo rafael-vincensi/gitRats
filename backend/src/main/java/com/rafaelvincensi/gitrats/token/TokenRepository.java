@@ -11,6 +11,6 @@ import java.util.UUID;
 interface TokenRepository extends JpaRepository<Token, UUID> {
 
     Optional<Token> findByToken(String token);
-    Optional<User> findByUser(User user);
+    Optional<Token> findByUser(User user);
     void deleteByUser(User user);
 }
