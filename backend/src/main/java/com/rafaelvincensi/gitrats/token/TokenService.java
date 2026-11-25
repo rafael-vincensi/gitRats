@@ -71,4 +71,16 @@ public class TokenService {
         return tokenRepository.save(refreshToken);
     }
 
+    @Transactional(noRollbackFor = ExpiredJwtException.class)
+    public Token verifyRefreshToken(String token) {
+        Token refreshToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new NotFoundException("Token not found!"));
+
+        if (refreshToken.getExpiryDate().isBefore(Instant.now())){
+            tokenRepository.delete(refreshToken);
+            throw new ExpiredJwtException("Refresh token expired. Please log in again.");
+        }
+        return refreshToken;
+    }
+
 }
