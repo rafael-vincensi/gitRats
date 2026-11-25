@@ -10,6 +10,7 @@ import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -34,18 +35,20 @@ public class AuthController {
         var authentication = authenticationManager.authenticate(token);
 
         User user = (User) authentication.getPrincipal();
-        String jwtToken = tokenService.generateToken(user);
+        String accessToken = tokenService.generateToken(user);
+        Token refreshToken = tokenService.createRefreshToken(user);
 
-        return ResponseEntity.ok(Map.of("token", jwtToken));
+        return ResponseEntity.ok(Map.of("accessToken", accessToken, "refreshToken", refreshToken.getToken()));
     }
 
     @GetMapping("/callback/github")
     public ResponseEntity<?> loginWithGithub(@RequestParam String code){
         User user = githubService.loginWithGithub(code);
 
-        String jwtToken = tokenService.generateToken(user);
+        String accessToken = tokenService.generateToken(user);
+        Token refreshToken = tokenService.createRefreshToken(user);
 
-        return ResponseEntity.ok(Map.of("token", jwtToken));
+        return ResponseEntity.ok(Map.of("accessToken", accessToken, "refreshToken", refreshToken.getToken()));
     }
 
     @PostMapping("/refresh")
@@ -59,6 +62,15 @@ public class AuthController {
             String newAccessToken = tokenService.generateToken(refreshToken.getUser());
 
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken, "refreshToken", refreshToken.getToken()));
+        }
+
+        @PostMapping("/logout")
+        public ResponseEntity<?> logout(@AuthenticationPrincipal User user){
+            if (user != null){
+                tokenService.deleteByUser(user);
+            }
+
+            return ResponseEntity.noContent().build();
         }
     }
 
