@@ -6,12 +6,15 @@ import com.rafaelvincensi.gitrats.github.dto.GithubTokenRequestDTO;
 import com.rafaelvincensi.gitrats.github.dto.GithubUserResponseDTO;
 import com.rafaelvincensi.gitrats.user.User;
 import com.rafaelvincensi.gitrats.user.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 public class GithubService {
@@ -67,6 +70,21 @@ public class GithubService {
         user.setGithubUsername(githubUser.login());
 
         return userRepository.save(user);
+    }
+
+    public String githubUrlAuthorization(HttpSession session){
+        String state = UUID.randomUUID().toString();
+
+        session.setAttribute("github_auth_state", state);
+
+        return UriComponentsBuilder
+                .fromUriString("https://github.com/login/oauth/authorize")
+                .queryParam("client_id", clientId)
+                .queryParam("redirect_uri", redirectUrl)
+                .queryParam("state", state)
+                .build()
+                .encode()
+                .toUriString();
     }
 
     @Cacheable(
