@@ -70,4 +70,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
     }
 
+    @ExceptionHandler(InvalidOAuthStateException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidOAuthStateException(InvalidOAuthStateException ex){
+        var errorDetails = new ErrorDetails(HttpStatus.FORBIDDEN.value(), ex.getMessage(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetails);
+    }
+
 }
