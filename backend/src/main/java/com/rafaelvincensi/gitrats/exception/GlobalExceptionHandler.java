@@ -63,4 +63,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
     }
 
+    @ExceptionHandler(OAuthAuthorizationException.class)
+    public ResponseEntity<ErrorDetails> handleOAuthAuthorizationException (OAuthAuthorizationException ex){
+        var errorDetails = new ErrorDetails(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
+    }
+
 }
