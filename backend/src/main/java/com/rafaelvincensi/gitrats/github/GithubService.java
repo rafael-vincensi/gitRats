@@ -1,5 +1,7 @@
 package com.rafaelvincensi.gitrats.github;
 
+import com.rafaelvincensi.gitrats.exception.InvalidOAuthStateException;
+import com.rafaelvincensi.gitrats.exception.OAuthAuthorizationException;
 import com.rafaelvincensi.gitrats.github.dto.GitHubTokenResponseDTO;
 import com.rafaelvincensi.gitrats.github.dto.GithubCommitsSearchResponseDTO;
 import com.rafaelvincensi.gitrats.github.dto.GithubTokenRequestDTO;
@@ -85,6 +87,24 @@ public class GithubService {
                 .build()
                 .encode()
                 .toUriString();
+    }
+
+
+    public void processCallback(String code, String state, String error, HttpSession session) {
+        String expectedState  = (String) session.getAttribute("github_auth_state");
+        session.removeAttribute("github_auth_state");
+
+        if (error != null) {
+            throw new OAuthAuthorizationException("Authorizations denied by GitHub: " + error);
+        }
+
+        if (expectedState == null || !expectedState.equals(state)) {
+            throw new InvalidOAuthStateException("Invalid state parameter or expired session.");
+        }
+
+        if (code == null || code.isBlank()) {
+            throw new OAuthAuthorizationException ("Authorization code not received.");
+        }
     }
 
     @Cacheable(
