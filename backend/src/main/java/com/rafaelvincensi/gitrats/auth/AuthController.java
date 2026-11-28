@@ -7,12 +7,15 @@ import com.rafaelvincensi.gitrats.token.TokenService;
 import com.rafaelvincensi.gitrats.user.User;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Map;
 
 @RestController
@@ -76,5 +79,12 @@ public class AuthController {
 
             return ResponseEntity.noContent().build();
         }
-    }
+
+        @GetMapping("/github")
+        public ResponseEntity<?> githubUrlAuthorization(HttpSession session){
+        var url = githubService.githubUrlAuthorization(session);
+
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).build();
+        }
+   }
 
