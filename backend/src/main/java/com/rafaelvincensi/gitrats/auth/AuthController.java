@@ -5,8 +5,8 @@ import com.rafaelvincensi.gitrats.github.GithubService;
 import com.rafaelvincensi.gitrats.token.Token;
 import com.rafaelvincensi.gitrats.token.TokenService;
 import com.rafaelvincensi.gitrats.user.User;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,9 +42,13 @@ public class AuthController {
     }
 
     @GetMapping("/callback/github")
-    public ResponseEntity<?> loginWithGithub(@RequestParam String code){
-        User user = githubService.loginWithGithub(code);
+    public ResponseEntity<?> loginWithGithub(@RequestParam (required = false)String code,
+                                             @RequestParam(required = false) String state,
+                                             @RequestParam(required = false) String error,
+                                             HttpSession session){
+        githubService.processCallback(code, state, error, session);
 
+        User user = githubService.loginWithGithub(code);
         String accessToken = tokenService.generateToken(user);
         Token refreshToken = tokenService.createRefreshToken(user);
 

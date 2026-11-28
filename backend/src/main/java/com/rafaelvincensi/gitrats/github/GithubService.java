@@ -89,7 +89,6 @@ public class GithubService {
                 .toUriString();
     }
 
-
     public void processCallback(String code, String state, String error, HttpSession session) {
         String expectedState  = (String) session.getAttribute("github_auth_state");
         session.removeAttribute("github_auth_state");
